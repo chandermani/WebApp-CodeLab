@@ -1,7 +1,7 @@
-// Create the all up Ember application
+// Create the all up Angular application
 var WReader = {}
 
-// Ember Object model for entry items
+// Angular Object model for entry items
 WReader.Item = function () {
     this.read = false;
     this.starred = false;
@@ -17,7 +17,7 @@ WReader.Item = function () {
 };
 
 function DataController($scope) {
-    // content array for Ember's data
+    // content array for Anuglar's data
     $scope.content = [];
 
     // Adds an item to the controller if it's not already in the controller
