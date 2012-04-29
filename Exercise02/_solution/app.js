@@ -24,7 +24,7 @@ function DataController($scope) {
     $scope.addItem = function (item) {
         // Check to see if there are any items in the controller with the same
         //  item_id already
-        var exists = $scope.content.filter(function (element) { return element.item_id == item.item_id; }).length;
+        var exists = this.content.filter(function (element) { return element.item_id == item.item_id; }).length;
         if (exists === 0) {
             // If no results are returned, we insert the new item into the data
             // controller in order of publication date
