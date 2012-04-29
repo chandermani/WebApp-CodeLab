@@ -1,117 +1,73 @@
+// Create the all up Angular application
+var WReader = {}
 
+// Angular Object model for entry items
+WReader.Item = function () {
+    this.read = false;
+    this.starred = false;
+    this.item_id = null;
+    this.title = null;
+    this.pub_name = null;
+    this.pub_author = null;
+    this.pub_date = new Date(0);
+    this.short_desc = null;
+    this.content = null;
+    this.feed_link = null;
+    this.item_link = null
+};
 
+function DataController($scope) {
+    // content array for Anuglar's data
+    $scope.content = [];
 
-// Create the all up Ember application
-var WReader = Em.Application.create({
-  ready: function() {
-    // Call the superclass's `ready` method.
-    this._super();
-  }
-});
+    // Adds an item to the controller if it's not already in the controller
+    $scope.addItem = function (item) {
+        // Check to see if there are any items in the controller with the same
+        //  item_id already
+        var exists = this.content.filter(function (element) { return element.item_id == item.item_id; }).length;
+        if (exists === 0) {
+            // If no results are returned, we insert the new item into the data
+            // controller in order of publication date
+            var length = $scope.content.length, idx;
+            idx = this.binarySearch(Date.parse(item.pub_date), 0, length, $scope.content);
+            this.content.splice(idx, 0, item);
+        }
+    };
 
-// Ember Object model for entry items
-WReader.Item = Em.Object.extend({
-  //TODO:
+    $scope.readCount = function () {
+        return this.content.filter(function (element) { return element.read == true }).length;
+    };
 
-  read: false,
-  starred: false,
-  item_id: null,
-  title: null,
-  pub_name: null,
-  pub_author: null,
-  pub_date: new Date(0),
-  short_desc: null,
-  content: null,
-  feed_link: null,
-  item_link: null
-});
+    $scope.itemCount = function () {
+        return this.content.length;
+    };
 
-WReader.dataController = Em.ArrayController.create({
-  // content array for Ember's data
-  content: [],
+    $scope.unreadCount = function () {
+        return this.content.filter(function (element) { return element.read == false }).length;
+    };
 
-  // Adds an item to the controller if it's not already in the controller
-  addItem: function(item) {
-    // Check to see if there are any items in the controller with the same
-    //  item_id already
-    var exists = this.filterProperty('item_id', item.item_id).length;
-    if (exists === 0) {
-      // If no results are returned, we insert the new item into the data
-      // controller in order of publication date
-      var length = this.get('length'), idx;
-      idx = this.binarySearch(Date.parse(item.get('pub_date')), 0, length);
-      this.insertAt(idx, item);
-      return true;
-    } else {
-      // It's already in the data controller, so we won't re-add it.
-      return false;
+    $scope.starredCount = function () {
+        return this.content.filter(function (element) { return element.starred == true }).length;
+    };
+
+    $scope.formattedDate = function (item) {
+        return moment(item.pub_date).format('MMMM Do, YYYY');
     }
-  },
+    // Binary search implementation that finds the index where a entry
+    // should be inserted when sorting by date.
+    $scope.binarySearch = function (value, low, high, data) {
+        var mid, midValue;
+        if (low === high) {
+            return low;
+        }
+        mid = low + Math.floor((high - low) / 2);
+        midValue = Date.parse(data[mid].pub_date);
 
-  // Binary search implementation that finds the index where a entry
-  // should be inserted when sorting by date.
-  binarySearch: function(value, low, high) {
-    var mid, midValue;
-    if (low === high) {
-      return low;
-    }
-    mid = low + Math.floor((high - low) / 2);
-    midValue = Date.parse(this.objectAt(mid).get('pub_date'));
-
-    if (value < midValue) {
-      return this.binarySearch(value, mid + 1, high);
-    } else if (value > midValue) {
-      return this.binarySearch(value, low, mid);
-    }
-    return mid;
-  },
-
-  // A 'property' that returns the count of items
-  itemCount: function() {
-    return this.get('length');
-  }.property('@each'),
-
-  // A 'property' that returns the count of read items
-  readCount: function() {
-    return this.filterProperty('read', true).get('length');
-  }.property('@each.read'),
-
-  // A 'property' that returns the count of unread items
-  unreadCount: function() {
-    return this.filterProperty('read', false).get('length');
-  }.property('@each.read'),
-
-  // A 'property' that returns the count of starred items
-  starredCount: function() {
-    return this.filterProperty('starred', true).get('length');
-  }.property('@each.starred')
-});
-
-// View for the ItemsList
-WReader.SummaryListView = Em.View.extend({
-  //TODO:
-
-  tagName: 'article',
-
-  classNames: ['well', 'summary'],
-
-  classNameBindings: ['read', 'starred'],
-
-  // Enables/Disables the read CSS class
-  read: function() {
-    var read = this.get('content').get('read');
-    return read;
-  }.property('WReader.itemsController.@each.read'),
-
-  // Enables/Disables the read CSS class
-  starred: function() {
-    var starred = this.get('content').get('starred');
-    return starred;
-  }.property('WReader.itemsController.@each.starred'),
-
-  // Returns the date in a human readable format
-  formattedDate: function() {
-    var d = this.get('content').get('pub_date');
-    return moment(d).format('MMMM Do, YYYY');
-  }.property('WReader.itemsController.@each.pub_date')
-});
+        if (value < midValue) {
+            return this.binarySearch(value, mid + 1, high, data);
+        } else if (value > midValue) {
+            return this.binarySearch(value, low, mid, data);
+        }
+        return mid;
+    };
+};
