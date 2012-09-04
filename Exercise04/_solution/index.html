@@ -35,50 +35,42 @@
        chromium.org/developers/how-tos/chrome-frame-getting-started -->
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
 
-  <header>
-    <script type="text/x-handlebars">
-    {{#view WReader.NavBarView}}
-      <ul>
-        <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
-        <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
-        <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
-        <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
-      </ul>
-    {{/view}}
-    </script>
-  </header>
-
-  <section class="mainContent">
-    <section class="summaries">
-      <script type="text/x-handlebars">
-          {{#each WReader.itemsController}}
-            {{#view WReader.SummaryListView contentBinding="this"}}
-              {{content.title}} from {{content.pub_name}} on {{formattedDate}}
-            {{/view}}
-          {{/each}}
-      </script>
+  <section class="mainContent" ng-app>
+    <section class="summaries" ng-controller="DataController">
+        <ul>
+            <li><a ng-click="filterAll()">{{itemCount()}} items </a><br /></li> 
+            <li><a ng-click="filterUnread()">{{unreadCount()}} are unread</a><br /></li> 
+            <li><a ng-click="filterRead()">{{readCount()}} are read</a><br /></li> 
+            <li><a ng-click="filterStarred()">{{starredCount()}} are starred</a><br /></li> 
+        </ul>
+        <div>
+            <article= ng-repeat="item in filteredContent">
+                    <div class="itemread-{{item.read}} itemstarred-{{item.starred}}">{{item.title}} from {{item.pub_name}} on {{formattedDate(item)}}</div>
+            </article>
+        </div>
     </section>
   </section>
-
   <!-- JavaScript at the bottom for fast page loading -->
 
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
+  <script>      window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
 
   <!-- scripts concatenated and minified via build script -->
   <script src="js/dev-helper.js"></script>
-  <script src="js/libs/moment-1.5.0.js"></script>
-  <script src="js/libs/ember-0.9.5.js"></script>
+  <script src="js/libs/angular-1.0.0rc6.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/libs/moment-1.5.0.js"></script>
   <!-- end scripts -->
 
   <script>
-    var _gaq=[['_setAccount','UA-29459980-1'],['_trackPageview']];
-    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-    s.parentNode.insertBefore(g,s)}(document,'script'));
+      var _gaq = [['_setAccount', 'UA-29459980-1'], ['_trackPageview']];
+      (function (d, t) {
+          var g = d.createElement(t), s = d.getElementsByTagName(t)[0];
+          g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+          s.parentNode.insertBefore(g, s)
+      } (document, 'script'));
   </script>
 </body>
 </html>
