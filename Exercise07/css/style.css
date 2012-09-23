@@ -38,6 +38,7 @@ section.mainContent div {
   height: 100%;
 }
 
+
 .controls {
   box-sizing: border-box;
   padding: 5px;
@@ -46,8 +47,6 @@ section.mainContent div {
   height: 100%;
 }
 
-/* Exercise 7.7a */
-
 .summaries {
   box-sizing: border-box;
   padding: 10px;
@@ -55,16 +54,10 @@ section.mainContent div {
   width: 300px;
 }
 
-/* Exercise 7.5c */
-
 .entries {
   padding: 10px;
   box-sizing: border-box;
   -webkit-box-flex: 1;
   overflow-y: scroll;
   padding-left: 10px;
-}
-
-.nothingSelected {
-  text-align: center;
 }
