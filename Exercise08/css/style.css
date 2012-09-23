@@ -16,6 +16,7 @@ body {
 
 .navbar .container {
   width: 100%;
+  min-width: 960px;
 }
 
 .itemCount {
@@ -41,18 +42,8 @@ section.mainContent div {
   box-sizing: border-box;
   padding: 5px;
   width: 50px;
-  background-color: black;
   margin: 0;
   height: 100%;
-
-  background-color: #2c2c2c;
-  background-image: -moz-linear-gradient(bottom, #333333, #222222);
-  background-image: -ms-linear-gradient(bottom, #333333, #222222);
-  background-image: -webkit-gradient(linear, 100% 100%, 0 0, from(#333333), to(#222222));
-  background-image: -webkit-linear-gradient(bottom, #333333, #222222);
-  background-image: -o-linear-gradient(bottom, #333333, #222222);
-  background-image: linear-gradient(bottom, #333333, #222222);
-  background-repeat: repeat-x;
 }
 
 .controls .btn {
@@ -93,12 +84,6 @@ section.mainContent div {
   padding: 10px;
   overflow-y: scroll;
   width: 300px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.summary {
-  color: #222;
-  box-shadow: 5px 5px 5px rgba(210, 210, 210, 0.6);
 }
 
 .summary.read {
@@ -111,19 +96,14 @@ section.mainContent div {
   opacity: 1.0;
 }
 
-/* Exercise 8.1b */
-
 .entries {
   padding: 10px;
   box-sizing: border-box;
   -webkit-box-flex: 1;
   overflow-y: scroll;
   padding-left: 10px;
-  -webkit-overflow-scrolling: touch;
 }
 
-/* Exercise 8.2b */
-
-.icon-refresh.spin {
-
+.nothingSelected {
+  text-align: center;
 }
