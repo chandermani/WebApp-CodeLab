@@ -9,9 +9,11 @@ js/libs/bootstrap.js
 js/libs/lawnchair-0.6.1.js
 js/libs/lawnchair-adapter-indexed-db-0.6.1.js
 js/libs/moment-1.5.0.js
-js/libs/ember-0.9.5.js
+js/libs/angular-1.0.2.js
+js/libs/angular-resource-1.0.2.js
 js/plugins.js
 js/app.js
+js/libs/amplify.core.min.js
 css/bootstrap.css
 css/style.css
 
