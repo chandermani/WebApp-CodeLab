@@ -4,7 +4,7 @@
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!-- Consider adding a manifest.appcache: h5bp.com/d/Offline -->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" manifest="wreader.appcache"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
 
@@ -35,7 +35,7 @@
        chromium.org/developers/how-tos/chrome-frame-getting-started -->
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
   
-  <div ng-controller="DataController" style="height:100%">
+  <div ng-controller="DataController" style="height:100%" id="datacontroller">
   <script type="text/ng-template" id="NavControlsView">
     <div class="tControls" ng-controller="NavControlsController">
         <div class="top">
@@ -100,7 +100,7 @@
         </section>
         <section class="entries" ng-switch on="itemSelected()"> 
             <div ng-switch-when="true">
-                <article ng-controller="ItemController" ng-init="item=selectedItem" ng:class="{read:item.read, starred:item.starred, well:true, entry:true,active:item==selectedItem}">
+                <article id="itemcontroller" ng-controller="ItemController" ng-init="item=selectedItem" ng:class="{read:item.read, starred:item.starred, well:true, entry:true,active:item==selectedItem}">
                     <div class="row-fluid">
                         <div class="span8">{{formattedDate(item)}}</div>
                                         <div class="span4 actions">
