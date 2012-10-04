@@ -1,2122 +1,82 @@
-/* ===================================================
- * bootstrap-transition.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#transitions
- * ===================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-!function( $ ) {
-
-  $(function () {
-
-    "use strict"
-
-    /* CSS TRANSITION SUPPORT (https://gist.github.com/373874)
-     * ======================================================= */
-
-    $.support.transition = (function () {
-      var thisBody = document.body || document.documentElement
-        , thisStyle = thisBody.style
-        , support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined
-
-      return support && {
-        end: (function () {
-          var transitionEnd = "TransitionEnd"
-          if ( $.browser.webkit ) {
-          	transitionEnd = "webkitTransitionEnd"
-          } else if ( $.browser.mozilla ) {
-          	transitionEnd = "transitionend"
-          } else if ( $.browser.opera ) {
-          	transitionEnd = "oTransitionEnd"
-          }
-          return transitionEnd
-        }())
-      }
-    })()
-
-  })
-
-}( window.jQuery );/* ==========================================================
- * bootstrap-alert.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#alerts
- * ==========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-
-!function( $ ){
-
-  "use strict"
-
- /* ALERT CLASS DEFINITION
-  * ====================== */
-
-  var dismiss = '[data-dismiss="alert"]'
-    , Alert = function ( el ) {
-        $(el).on('click', dismiss, this.close)
-      }
-
-  Alert.prototype = {
-
-    constructor: Alert
-
-  , close: function ( e ) {
-      var $this = $(this)
-        , selector = $this.attr('data-target')
-        , $parent
-
-      if (!selector) {
-        selector = $this.attr('href')
-        selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
-      }
-
-      $parent = $(selector)
-      $parent.trigger('close')
-
-      e && e.preventDefault()
-
-      $parent.length || ($parent = $this.hasClass('alert') ? $this : $this.parent())
-
-      $parent
-        .trigger('close')
-        .removeClass('in')
-
-      function removeElement() {
-        $parent
-          .trigger('closed')
-          .remove()
-      }
-
-      $.support.transition && $parent.hasClass('fade') ?
-        $parent.on($.support.transition.end, removeElement) :
-        removeElement()
-    }
-
-  }
-
-
- /* ALERT PLUGIN DEFINITION
-  * ======================= */
-
-  $.fn.alert = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('alert')
-      if (!data) $this.data('alert', (data = new Alert(this)))
-      if (typeof option == 'string') data[option].call($this)
-    })
-  }
-
-  $.fn.alert.Constructor = Alert
-
-
- /* ALERT DATA-API
-  * ============== */
-
-  $(function () {
-    $('body').on('click.alert.data-api', dismiss, Alert.prototype.close)
-  })
-
-}( window.jQuery );/* ============================================================
- * bootstrap-button.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#buttons
- * ============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-!function( $ ){
-
-  "use strict"
-
- /* BUTTON PUBLIC CLASS DEFINITION
-  * ============================== */
-
-  var Button = function ( element, options ) {
-    this.$element = $(element)
-    this.options = $.extend({}, $.fn.button.defaults, options)
-  }
-
-  Button.prototype = {
-
-      constructor: Button
-
-    , setState: function ( state ) {
-        var d = 'disabled'
-          , $el = this.$element
-          , data = $el.data()
-          , val = $el.is('input') ? 'val' : 'html'
-
-        state = state + 'Text'
-        data.resetText || $el.data('resetText', $el[val]())
-
-        $el[val](data[state] || this.options[state])
-
-        // push to event loop to allow forms to submit
-        setTimeout(function () {
-          state == 'loadingText' ?
-            $el.addClass(d).attr(d, d) :
-            $el.removeClass(d).removeAttr(d)
-        }, 0)
-      }
-
-    , toggle: function () {
-        var $parent = this.$element.parent('[data-toggle="buttons-radio"]')
-
-        $parent && $parent
-          .find('.active')
-          .removeClass('active')
-
-        this.$element.toggleClass('active')
-      }
-
-  }
-
-
- /* BUTTON PLUGIN DEFINITION
-  * ======================== */
-
-  $.fn.button = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('button')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('button', (data = new Button(this, options)))
-      if (option == 'toggle') data.toggle()
-      else if (option) data.setState(option)
-    })
-  }
-
-  $.fn.button.defaults = {
-    loadingText: 'loading...'
-  }
-
-  $.fn.button.Constructor = Button
-
-
- /* BUTTON DATA-API
-  * =============== */
-
-  $(function () {
-    $('body').on('click.button.data-api', '[data-toggle^=button]', function ( e ) {
-      var $btn = $(e.target)
-      if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
-      $btn.button('toggle')
-    })
-  })
-
-}( window.jQuery );/* ==========================================================
- * bootstrap-carousel.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#carousel
- * ==========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-
-!function( $ ){
-
-  "use strict"
-
- /* CAROUSEL CLASS DEFINITION
-  * ========================= */
-
-  var Carousel = function (element, options) {
-    this.$element = $(element)
-    this.options = $.extend({}, $.fn.carousel.defaults, options)
-    this.options.slide && this.slide(this.options.slide)
-  }
-
-  Carousel.prototype = {
-
-    cycle: function () {
-      this.interval = setInterval($.proxy(this.next, this), this.options.interval)
-      return this
-    }
-
-  , to: function (pos) {
-      var $active = this.$element.find('.active')
-        , children = $active.parent().children()
-        , activePos = children.index($active)
-        , that = this
-
-      if (pos > (children.length - 1) || pos < 0) return
-
-      if (this.sliding) {
-        return this.$element.one('slid', function () {
-          that.to(pos)
-        })
-      }
-
-      if (activePos == pos) {
-        return this.pause().cycle()
-      }
-
-      return this.slide(pos > activePos ? 'next' : 'prev', $(children[pos]))
-    }
-
-  , pause: function () {
-      clearInterval(this.interval)
-      this.interval = null
-      return this
-    }
-
-  , next: function () {
-      if (this.sliding) return
-      return this.slide('next')
-    }
-
-  , prev: function () {
-      if (this.sliding) return
-      return this.slide('prev')
-    }
-
-  , slide: function (type, next) {
-      var $active = this.$element.find('.active')
-        , $next = next || $active[type]()
-        , isCycling = this.interval
-        , direction = type == 'next' ? 'left' : 'right'
-        , fallback  = type == 'next' ? 'first' : 'last'
-        , that = this
-
-      if (!$next.length) return
-
-      this.sliding = true
-
-      isCycling && this.pause()
-
-      $next = $next.length ? $next : this.$element.find('.item')[fallback]()
-
-      if (!$.support.transition && this.$element.hasClass('slide')) {
-        this.$element.trigger('slide')
-        $active.removeClass('active')
-        $next.addClass('active')
-        this.sliding = false
-        this.$element.trigger('slid')
-      } else {
-        $next.addClass(type)
-        $next[0].offsetWidth // force reflow
-        $active.addClass(direction)
-        $next.addClass(direction)
-        this.$element.trigger('slide')
-        this.$element.one($.support.transition.end, function () {
-          $next.removeClass([type, direction].join(' ')).addClass('active')
-          $active.removeClass(['active', direction].join(' '))
-          that.sliding = false
-          setTimeout(function () { that.$element.trigger('slid') }, 0)
-        })
-      }
-
-      isCycling && this.cycle()
-
-      return this
-    }
-
-  }
-
-
- /* CAROUSEL PLUGIN DEFINITION
-  * ========================== */
-
-  $.fn.carousel = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('carousel')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('carousel', (data = new Carousel(this, options)))
-      if (typeof option == 'number') data.to(option)
-      else if (typeof option == 'string' || (option = options.slide)) data[option]()
-      else data.cycle()
-    })
-  }
-
-  $.fn.carousel.defaults = {
-    interval: 5000
-  }
-
-  $.fn.carousel.Constructor = Carousel
-
-
- /* CAROUSEL DATA-API
-  * ================= */
-
-  $(function () {
-    $('body').on('click.carousel.data-api', '[data-slide]', function ( e ) {
-      var $this = $(this), href
-        , $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
-        , options = !$target.data('modal') && $.extend({}, $target.data(), $this.data())
-      $target.carousel(options)
-      e.preventDefault()
-    })
-  })
-
-}( window.jQuery );/* =============================================================
- * bootstrap-collapse.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#collapse
- * =============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-!function( $ ){
-
-  "use strict"
-
-  var Collapse = function ( element, options ) {
-  	this.$element = $(element)
-    this.options = $.extend({}, $.fn.collapse.defaults, options)
-
-    if (this.options["parent"]) {
-      this.$parent = $(this.options["parent"])
-    }
-
-    this.options.toggle && this.toggle()
-  }
-
-  Collapse.prototype = {
-
-    constructor: Collapse
-
-  , dimension: function () {
-      var hasWidth = this.$element.hasClass('width')
-      return hasWidth ? 'width' : 'height'
-    }
-
-  , show: function () {
-      var dimension = this.dimension()
-        , scroll = $.camelCase(['scroll', dimension].join('-'))
-        , actives = this.$parent && this.$parent.find('.in')
-        , hasData
-
-      if (actives && actives.length) {
-        hasData = actives.data('collapse')
-        actives.collapse('hide')
-        hasData || actives.data('collapse', null)
-      }
-
-      this.$element[dimension](0)
-      this.transition('addClass', 'show', 'shown')
-      this.$element[dimension](this.$element[0][scroll])
-
-    }
-
-  , hide: function () {
-      var dimension = this.dimension()
-      this.reset(this.$element[dimension]())
-      this.transition('removeClass', 'hide', 'hidden')
-      this.$element[dimension](0)
-    }
-
-  , reset: function ( size ) {
-      var dimension = this.dimension()
-
-      this.$element
-        .removeClass('collapse')
-        [dimension](size || 'auto')
-        [0].offsetWidth
-
-      this.$element.addClass('collapse')
-    }
-
-  , transition: function ( method, startEvent, completeEvent ) {
-      var that = this
-        , complete = function () {
-            if (startEvent == 'show') that.reset()
-            that.$element.trigger(completeEvent)
-          }
-
-      this.$element
-        .trigger(startEvent)
-        [method]('in')
-
-      $.support.transition && this.$element.hasClass('collapse') ?
-        this.$element.one($.support.transition.end, complete) :
-        complete()
-  	}
-
-  , toggle: function () {
-      this[this.$element.hasClass('in') ? 'hide' : 'show']()
-  	}
-
-  }
-
-  /* COLLAPSIBLE PLUGIN DEFINITION
-  * ============================== */
-
-  $.fn.collapse = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('collapse')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('collapse', (data = new Collapse(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.collapse.defaults = {
-    toggle: true
-  }
-
-  $.fn.collapse.Constructor = Collapse
-
-
- /* COLLAPSIBLE DATA-API
-  * ==================== */
-
-  $(function () {
-    $('body').on('click.collapse.data-api', '[data-toggle=collapse]', function ( e ) {
-      var $this = $(this), href
-        , target = $this.attr('data-target')
-          || e.preventDefault()
-          || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
-        , option = $(target).data('collapse') ? 'toggle' : $this.data()
-      $(target).collapse(option)
-    })
-  })
-
-}( window.jQuery );/* ============================================================
- * bootstrap-dropdown.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#dropdowns
- * ============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-
-!function( $ ){
-
-  "use strict"
-
- /* DROPDOWN CLASS DEFINITION
-  * ========================= */
-
-  var toggle = '[data-toggle="dropdown"]'
-    , Dropdown = function ( element ) {
-        var $el = $(element).on('click.dropdown.data-api', this.toggle)
-        $('html').on('click.dropdown.data-api', function () {
-          $el.parent().removeClass('open')
-        })
-      }
-
-  Dropdown.prototype = {
-
-    constructor: Dropdown
-
-  , toggle: function ( e ) {
-      var $this = $(this)
-        , selector = $this.attr('data-target')
-        , $parent
-        , isActive
-
-      if (!selector) {
-        selector = $this.attr('href')
-        selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
-      }
-
-      $parent = $(selector)
-      $parent.length || ($parent = $this.parent())
-
-      isActive = $parent.hasClass('open')
-
-      clearMenus()
-      !isActive && $parent.toggleClass('open')
-
-      return false
-    }
-
-  }
-
-  function clearMenus() {
-    $(toggle).parent().removeClass('open')
-  }
-
-
-  /* DROPDOWN PLUGIN DEFINITION
-   * ========================== */
-
-  $.fn.dropdown = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('dropdown')
-      if (!data) $this.data('dropdown', (data = new Dropdown(this)))
-      if (typeof option == 'string') data[option].call($this)
-    })
-  }
-
-  $.fn.dropdown.Constructor = Dropdown
-
-
-  /* APPLY TO STANDARD DROPDOWN ELEMENTS
-   * =================================== */
-
-  $(function () {
-    $('html').on('click.dropdown.data-api', clearMenus)
-    $('body').on('click.dropdown.data-api', toggle, Dropdown.prototype.toggle)
-  })
-
-}( window.jQuery );/* =========================================================
- * bootstrap-modal.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#modals
- * =========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================= */
-
-
-!function( $ ){
-
-  "use strict"
-
- /* MODAL CLASS DEFINITION
-  * ====================== */
-
-  var Modal = function ( content, options ) {
-    this.options = options
-    this.$element = $(content)
-      .delegate('[data-dismiss="modal"]', 'click.dismiss.modal', $.proxy(this.hide, this))
-  }
-
-  Modal.prototype = {
-
-      constructor: Modal
-
-    , toggle: function () {
-        return this[!this.isShown ? 'show' : 'hide']()
-      }
-
-    , show: function () {
-        var that = this
-
-        if (this.isShown) return
-
-        $('body').addClass('modal-open')
-
-        this.isShown = true
-        this.$element.trigger('show')
-
-        escape.call(this)
-        backdrop.call(this, function () {
-          var transition = $.support.transition && that.$element.hasClass('fade')
-
-          !that.$element.parent().length && that.$element.appendTo(document.body) //don't move modals dom position
-
-          that.$element
-            .show()
-
-          if (transition) {
-            that.$element[0].offsetWidth // force reflow
-          }
-
-          that.$element.addClass('in')
-
-          transition ?
-            that.$element.one($.support.transition.end, function () { that.$element.trigger('shown') }) :
-            that.$element.trigger('shown')
-
-        })
-      }
-
-    , hide: function ( e ) {
-        e && e.preventDefault()
-
-        if (!this.isShown) return
-
-        var that = this
-        this.isShown = false
-
-        $('body').removeClass('modal-open')
-
-        escape.call(this)
-
-        this.$element
-          .trigger('hide')
-          .removeClass('in')
-
-        $.support.transition && this.$element.hasClass('fade') ?
-          hideWithTransition.call(this) :
-          hideModal.call(this)
-      }
-
-  }
-
-
- /* MODAL PRIVATE METHODS
-  * ===================== */
-
-  function hideWithTransition() {
-    var that = this
-      , timeout = setTimeout(function () {
-          that.$element.off($.support.transition.end)
-          hideModal.call(that)
-        }, 500)
-
-    this.$element.one($.support.transition.end, function () {
-      clearTimeout(timeout)
-      hideModal.call(that)
-    })
-  }
-
-  function hideModal( that ) {
-    this.$element
-      .hide()
-      .trigger('hidden')
-
-    backdrop.call(this)
-  }
-
-  function backdrop( callback ) {
-    var that = this
-      , animate = this.$element.hasClass('fade') ? 'fade' : ''
-
-    if (this.isShown && this.options.backdrop) {
-      var doAnimate = $.support.transition && animate
-
-      this.$backdrop = $('<div class="modal-backdrop ' + animate + '" />')
-        .appendTo(document.body)
-
-      if (this.options.backdrop != 'static') {
-        this.$backdrop.click($.proxy(this.hide, this))
-      }
-
-      if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
-
-      this.$backdrop.addClass('in')
-
-      doAnimate ?
-        this.$backdrop.one($.support.transition.end, callback) :
-        callback()
-
-    } else if (!this.isShown && this.$backdrop) {
-      this.$backdrop.removeClass('in')
-
-      $.support.transition && this.$element.hasClass('fade')?
-        this.$backdrop.one($.support.transition.end, $.proxy(removeBackdrop, this)) :
-        removeBackdrop.call(this)
-
-    } else if (callback) {
-      callback()
-    }
-  }
-
-  function removeBackdrop() {
-    this.$backdrop.remove()
-    this.$backdrop = null
-  }
-
-  function escape() {
-    var that = this
-    if (this.isShown && this.options.keyboard) {
-      $(document).on('keyup.dismiss.modal', function ( e ) {
-        e.which == 27 && that.hide()
-      })
-    } else if (!this.isShown) {
-      $(document).off('keyup.dismiss.modal')
-    }
-  }
-
-
- /* MODAL PLUGIN DEFINITION
-  * ======================= */
-
-  $.fn.modal = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('modal')
-        , options = $.extend({}, $.fn.modal.defaults, $this.data(), typeof option == 'object' && option)
-      if (!data) $this.data('modal', (data = new Modal(this, options)))
-      if (typeof option == 'string') data[option]()
-      else if (options.show) data.show()
-    })
-  }
-
-  $.fn.modal.defaults = {
-      backdrop: true
-    , keyboard: true
-    , show: true
-  }
-
-  $.fn.modal.Constructor = Modal
-
-
- /* MODAL DATA-API
-  * ============== */
-
-  $(function () {
-    $('body').on('click.modal.data-api', '[data-toggle="modal"]', function ( e ) {
-      var $this = $(this), href
-        , $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
-        , option = $target.data('modal') ? 'toggle' : $.extend({}, $target.data(), $this.data())
-
-      e.preventDefault()
-      $target.modal(option)
-    })
-  })
-
-}( window.jQuery );/* ===========================================================
- * bootstrap-tooltip.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#tooltips
- * Inspired by the original jQuery.tipsy by Jason Frame
- * ===========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-!function( $ ) {
-
-  "use strict"
-
- /* TOOLTIP PUBLIC CLASS DEFINITION
-  * =============================== */
-
-  var Tooltip = function ( element, options ) {
-    this.init('tooltip', element, options)
-  }
-
-  Tooltip.prototype = {
-
-    constructor: Tooltip
-
-  , init: function ( type, element, options ) {
-      var eventIn
-        , eventOut
-
-      this.type = type
-      this.$element = $(element)
-      this.options = this.getOptions(options)
-      this.enabled = true
-
-      if (this.options.trigger != 'manual') {
-        eventIn  = this.options.trigger == 'hover' ? 'mouseenter' : 'focus'
-        eventOut = this.options.trigger == 'hover' ? 'mouseleave' : 'blur'
-        this.$element.on(eventIn, this.options.selector, $.proxy(this.enter, this))
-        this.$element.on(eventOut, this.options.selector, $.proxy(this.leave, this))
-      }
-
-      this.options.selector ?
-        (this._options = $.extend({}, this.options, { trigger: 'manual', selector: '' })) :
-        this.fixTitle()
-    }
-
-  , getOptions: function ( options ) {
-      options = $.extend({}, $.fn[this.type].defaults, options, this.$element.data())
-
-      if (options.delay && typeof options.delay == 'number') {
-        options.delay = {
-          show: options.delay
-        , hide: options.delay
+/*
+Helper test methods to add a couple of items to our list
+*/
+//var items = [];
+
+var names = ["Adam", "Bert", "Charlie", "Dave", "Ernie", "Frances",
+    "Gary", "Isabelle", "John", "Kyle", "Lyla", "Matt", "Nancy", "Ophelia",
+    "Peter", "Quentin", "Rachel", "Stan", "Tom", "Uma", "Veronica", "Wilson",
+    "Xander", "Yehuda", "Zora"];
+var feeds = ["Engadget", "Gizmodo", "Memegen", "New York Times"];
+
+var lorem = "<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed ";
+lorem += "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ";
+lorem += "ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut ";
+lorem += "aliquip ex ea commodo consequat. Duis aute irure dolor in ";
+lorem += "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ";
+lorem += "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ";
+lorem += "culpa qui officia deserunt mollit anim id est laborum.</p>";
+lorem += lorem;
+lorem += lorem;
+lorem += lorem;
+
+function addNewItems(num) {
+    //Scope that would be updated
+    var scope = angular.element('.summaries').scope();
+    for (var i = 0; i < num; i++) {
+        var item = new WReader.Item();
+        var item_id = Math.floor(Math.random() * 1000000000);
+        item.item_id = item_id;
+        item.key = item_id;
+        item.pub_name = feeds[Math.floor(Math.random() * feeds.length)];
+        item.pub_author = names[Math.floor(Math.random() * names.length)] + " " + names[Math.floor(Math.random() * names.length)];
+        item.title = "Item Title " + item_id.toString();
+        item.item_link = "http://url/" + item_id.toString();
+        item.feed_link = "http://url/" + item_id.toString();
+        item.content = "<p>" + item.title + "<p>" + lorem;
+        item.short_desc = item.content.substr(0, 128) + "...";
+        item.pub_date = new Date(1300000000000 + i * 86400000 + (86400000 * Math.random()));
+        if (Math.random() > 0.5) {
+            item.read = true;
         }
-      }
-
-      return options
-    }
-
-  , enter: function ( e ) {
-      var self = $(e.currentTarget)[this.type](this._options).data(this.type)
-
-      if (!self.options.delay || !self.options.delay.show) {
-        self.show()
-      } else {
-        self.hoverState = 'in'
-        setTimeout(function() {
-          if (self.hoverState == 'in') {
-            self.show()
-          }
-        }, self.options.delay.show)
-      }
-    }
-
-  , leave: function ( e ) {
-      var self = $(e.currentTarget)[this.type](this._options).data(this.type)
-
-      if (!self.options.delay || !self.options.delay.hide) {
-        self.hide()
-      } else {
-        self.hoverState = 'out'
-        setTimeout(function() {
-          if (self.hoverState == 'out') {
-            self.hide()
-          }
-        }, self.options.delay.hide)
-      }
-    }
-
-  , show: function () {
-      var $tip
-        , inside
-        , pos
-        , actualWidth
-        , actualHeight
-        , placement
-        , tp
-
-      if (this.hasContent() && this.enabled) {
-        $tip = this.tip()
-        this.setContent()
-
-        if (this.options.animation) {
-          $tip.addClass('fade')
+        if (Math.random() > 0.5) {
+            item.starred = true;
         }
-
-        placement = typeof this.options.placement == 'function' ?
-          this.options.placement.call(this, $tip[0], this.$element[0]) :
-          this.options.placement
-
-        inside = /in/.test(placement)
-
-        $tip
-          .remove()
-          .css({ top: 0, left: 0, display: 'block' })
-          .appendTo(inside ? this.$element : document.body)
-
-        pos = this.getPosition(inside)
-
-        actualWidth = $tip[0].offsetWidth
-        actualHeight = $tip[0].offsetHeight
-
-        switch (inside ? placement.split(' ')[1] : placement) {
-          case 'bottom':
-            tp = {top: pos.top + pos.height, left: pos.left + pos.width / 2 - actualWidth / 2}
-            break
-          case 'top':
-            tp = {top: pos.top - actualHeight, left: pos.left + pos.width / 2 - actualWidth / 2}
-            break
-          case 'left':
-            tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth}
-            break
-          case 'right':
-            tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width}
-            break
-        }
-
-        $tip
-          .css(tp)
-          .addClass(placement)
-          .addClass('in')
-      }
+        //since we are touching the view from outside angular context we need to call $apply
+        scope.$apply(scope.addItem(item));
     }
-
-  , setContent: function () {
-      var $tip = this.tip()
-      $tip.find('.tooltip-inner').html(this.getTitle())
-      $tip.removeClass('fade in top bottom left right')
-    }
-
-  , hide: function () {
-      var that = this
-        , $tip = this.tip()
-
-      $tip.removeClass('in')
-
-      function removeWithAnimation() {
-        var timeout = setTimeout(function () {
-          $tip.off($.support.transition.end).remove()
-        }, 500)
-
-        $tip.one($.support.transition.end, function () {
-          clearTimeout(timeout)
-          $tip.remove()
-        })
-      }
-
-      $.support.transition && this.$tip.hasClass('fade') ?
-        removeWithAnimation() :
-        $tip.remove()
-    }
-
-  , fixTitle: function () {
-      var $e = this.$element
-      if ($e.attr('title') || typeof($e.attr('data-original-title')) != 'string') {
-        $e.attr('data-original-title', $e.attr('title') || '').removeAttr('title')
-      }
-    }
-
-  , hasContent: function () {
-      return this.getTitle()
-    }
-
-  , getPosition: function (inside) {
-      return $.extend({}, (inside ? {top: 0, left: 0} : this.$element.offset()), {
-        width: this.$element[0].offsetWidth
-      , height: this.$element[0].offsetHeight
-      })
-    }
-
-  , getTitle: function () {
-      var title
-        , $e = this.$element
-        , o = this.options
-
-      title = $e.attr('data-original-title')
-        || (typeof o.title == 'function' ? o.title.call($e[0]) :  o.title)
-
-      title = title.toString().replace(/(^\s*|\s*$)/, "")
-
-      return title
-    }
-
-  , tip: function () {
-      return this.$tip = this.$tip || $(this.options.template)
-    }
-
-  , validate: function () {
-      if (!this.$element[0].parentNode) {
-        this.hide()
-        this.$element = null
-        this.options = null
-      }
-    }
-
-  , enable: function () {
-      this.enabled = true
-    }
-
-  , disable: function () {
-      this.enabled = false
-    }
-
-  , toggleEnabled: function () {
-      this.enabled = !this.enabled
-    }
-
-  , toggle: function () {
-      this[this.tip().hasClass('in') ? 'hide' : 'show']()
-    }
-
-  }
-
-
- /* TOOLTIP PLUGIN DEFINITION
-  * ========================= */
-
-  $.fn.tooltip = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('tooltip')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('tooltip', (data = new Tooltip(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.tooltip.Constructor = Tooltip
-
-  $.fn.tooltip.defaults = {
-    animation: true
-  , delay: 0
-  , selector: false
-  , placement: 'top'
-  , trigger: 'hover'
-  , title: ''
-  , template: '<div class="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-  }
-
-}( window.jQuery );/* ===========================================================
- * bootstrap-popover.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#popovers
- * ===========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * =========================================================== */
-
-
-!function( $ ) {
-
- "use strict"
-
-  var Popover = function ( element, options ) {
-    this.init('popover', element, options)
-  }
-
-  /* NOTE: POPOVER EXTENDS BOOTSTRAP-TOOLTIP.js
-     ========================================== */
-
-  Popover.prototype = $.extend({}, $.fn.tooltip.Constructor.prototype, {
-
-    constructor: Popover
-
-  , setContent: function () {
-      var $tip = this.tip()
-        , title = this.getTitle()
-        , content = this.getContent()
-
-      $tip.find('.popover-title')[ $.type(title) == 'object' ? 'append' : 'html' ](title)
-      $tip.find('.popover-content > *')[ $.type(content) == 'object' ? 'append' : 'html' ](content)
-
-      $tip.removeClass('fade top bottom left right in')
-    }
-
-  , hasContent: function () {
-      return this.getTitle() || this.getContent()
-    }
-
-  , getContent: function () {
-      var content
-        , $e = this.$element
-        , o = this.options
-
-      content = $e.attr('data-content')
-        || (typeof o.content == 'function' ? o.content.call($e[0]) :  o.content)
-
-      content = content.toString().replace(/(^\s*|\s*$)/, "")
-
-      return content
-    }
-
-  , tip: function() {
-      if (!this.$tip) {
-        this.$tip = $(this.options.template)
-      }
-      return this.$tip
-    }
-
-  })
-
-
- /* POPOVER PLUGIN DEFINITION
-  * ======================= */
-
-  $.fn.popover = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('popover')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('popover', (data = new Popover(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.popover.Constructor = Popover
-
-  $.fn.popover.defaults = $.extend({} , $.fn.tooltip.defaults, {
-    placement: 'right'
-  , content: ''
-  , template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
-  })
-
-}( window.jQuery );/* =============================================================
- * bootstrap-scrollspy.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#scrollspy
- * =============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================== */
-
-!function ( $ ) {
-
-  "use strict"
-
-  /* SCROLLSPY CLASS DEFINITION
-   * ========================== */
-
-  function ScrollSpy( element, options) {
-    var process = $.proxy(this.process, this)
-      , $element = $(element).is('body') ? $(window) : $(element)
-      , href
-    this.options = $.extend({}, $.fn.scrollspy.defaults, options)
-    this.$scrollElement = $element.on('scroll.scroll.data-api', process)
-    this.selector = (this.options.target
-      || ((href = $(element).attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
-      || '') + ' .nav li > a'
-    this.$body = $('body').on('click.scroll.data-api', this.selector, process)
-    this.refresh()
-    this.process()
-  }
-
-  ScrollSpy.prototype = {
-
-      constructor: ScrollSpy
-
-    , refresh: function () {
-        this.targets = this.$body
-          .find(this.selector)
-          .map(function () {
-            var href = $(this).attr('href')
-            return /^#\w/.test(href) && $(href).length ? href : null
-          })
-
-        this.offsets = $.map(this.targets, function (id) {
-          return $(id).position().top
-        })
-      }
-
-    , process: function () {
-        var scrollTop = this.$scrollElement.scrollTop() + this.options.offset
-          , offsets = this.offsets
-          , targets = this.targets
-          , activeTarget = this.activeTarget
-          , i
-
-        for (i = offsets.length; i--;) {
-          activeTarget != targets[i]
-            && scrollTop >= offsets[i]
-            && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
-            && this.activate( targets[i] )
-        }
-      }
-
-    , activate: function (target) {
-        var active
-
-        this.activeTarget = target
-
-        this.$body
-          .find(this.selector).parent('.active')
-          .removeClass('active')
-
-        active = this.$body
-          .find(this.selector + '[href="' + target + '"]')
-          .parent('li')
-          .addClass('active')
-
-        if ( active.parent('.dropdown-menu') )  {
-          active.closest('li.dropdown').addClass('active')
-        }
-      }
-
-  }
-
-
- /* SCROLLSPY PLUGIN DEFINITION
-  * =========================== */
-
-  $.fn.scrollspy = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('scrollspy')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('scrollspy', (data = new ScrollSpy(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.scrollspy.Constructor = ScrollSpy
-
-  $.fn.scrollspy.defaults = {
-    offset: 10
-  }
-
-
- /* SCROLLSPY DATA-API
-  * ================== */
-
-  $(function () {
-    $('[data-spy="scroll"]').each(function () {
-      var $spy = $(this)
-      $spy.scrollspy($spy.data())
-    })
-  })
-
-}( window.jQuery );/* ========================================================
- * bootstrap-tab.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#tabs
- * ========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ======================================================== */
-
-
-!function( $ ){
-
-  "use strict"
-
- /* TAB CLASS DEFINITION
-  * ==================== */
-
-  var Tab = function ( element ) {
-    this.element = $(element)
-  }
-
-  Tab.prototype = {
-
-    constructor: Tab
-
-  , show: function () {
-      var $this = this.element
-        , $ul = $this.closest('ul:not(.dropdown-menu)')
-        , selector = $this.attr('data-target')
-        , previous
-        , $target
-
-      if (!selector) {
-        selector = $this.attr('href')
-        selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
-      }
-
-      if ( $this.parent('li').hasClass('active') ) return
-
-      previous = $ul.find('.active a').last()[0]
-
-      $this.trigger({
-        type: 'show'
-      , relatedTarget: previous
-      })
-
-      $target = $(selector)
-
-      this.activate($this.parent('li'), $ul)
-      this.activate($target, $target.parent(), function () {
-        $this.trigger({
-          type: 'shown'
-        , relatedTarget: previous
-        })
-      })
-    }
-
-  , activate: function ( element, container, callback) {
-      var $active = container.find('> .active')
-        , transition = callback
-            && $.support.transition
-            && $active.hasClass('fade')
-
-      function next() {
-        $active
-          .removeClass('active')
-          .find('> .dropdown-menu > .active')
-          .removeClass('active')
-
-        element.addClass('active')
-
-        if (transition) {
-          element[0].offsetWidth // reflow for transition
-          element.addClass('in')
-        } else {
-          element.removeClass('fade')
-        }
-
-        if ( element.parent('.dropdown-menu') ) {
-          element.closest('li.dropdown').addClass('active')
-        }
-
-        callback && callback()
-      }
-
-      transition ?
-        $active.one($.support.transition.end, next) :
-        next()
-
-      $active.removeClass('in')
-    }
-  }
-
-
- /* TAB PLUGIN DEFINITION
-  * ===================== */
-
-  $.fn.tab = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('tab')
-      if (!data) $this.data('tab', (data = new Tab(this)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.tab.Constructor = Tab
-
-
- /* TAB DATA-API
-  * ============ */
-
-  $(function () {
-    $('body').on('click.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    })
-  })
-
-}( window.jQuery );/* =============================================================
- * bootstrap-typeahead.js v2.0.1
- * http://twitter.github.com/bootstrap/javascript.html#typeahead
- * =============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-!function( $ ){
-
-  "use strict"
-
-  var Typeahead = function ( element, options ) {
-    this.$element = $(element)
-    this.options = $.extend({}, $.fn.typeahead.defaults, options)
-    this.matcher = this.options.matcher || this.matcher
-    this.sorter = this.options.sorter || this.sorter
-    this.highlighter = this.options.highlighter || this.highlighter
-    this.$menu = $(this.options.menu).appendTo('body')
-    this.source = this.options.source
-    this.shown = false
-    this.listen()
-  }
-
-  Typeahead.prototype = {
-
-    constructor: Typeahead
-
-  , select: function () {
-      var val = this.$menu.find('.active').attr('data-value')
-      this.$element.val(val)
-      return this.hide()
-    }
-
-  , show: function () {
-      var pos = $.extend({}, this.$element.offset(), {
-        height: this.$element[0].offsetHeight
-      })
-
-      this.$menu.css({
-        top: pos.top + pos.height
-      , left: pos.left
-      })
-
-      this.$menu.show()
-      this.shown = true
-      return this
-    }
-
-  , hide: function () {
-      this.$menu.hide()
-      this.shown = false
-      return this
-    }
-
-  , lookup: function (event) {
-      var that = this
-        , items
-        , q
-
-      this.query = this.$element.val()
-
-      if (!this.query) {
-        return this.shown ? this.hide() : this
-      }
-
-      items = $.grep(this.source, function (item) {
-        if (that.matcher(item)) return item
-      })
-
-      items = this.sorter(items)
-
-      if (!items.length) {
-        return this.shown ? this.hide() : this
-      }
-
-      return this.render(items.slice(0, this.options.items)).show()
-    }
-
-  , matcher: function (item) {
-      return ~item.toLowerCase().indexOf(this.query.toLowerCase())
-    }
-
-  , sorter: function (items) {
-      var beginswith = []
-        , caseSensitive = []
-        , caseInsensitive = []
-        , item
-
-      while (item = items.shift()) {
-        if (!item.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item)
-        else if (~item.indexOf(this.query)) caseSensitive.push(item)
-        else caseInsensitive.push(item)
-      }
-
-      return beginswith.concat(caseSensitive, caseInsensitive)
-    }
-
-  , highlighter: function (item) {
-      return item.replace(new RegExp('(' + this.query + ')', 'ig'), function ($1, match) {
-        return '<strong>' + match + '</strong>'
-      })
-    }
-
-  , render: function (items) {
-      var that = this
-
-      items = $(items).map(function (i, item) {
-        i = $(that.options.item).attr('data-value', item)
-        i.find('a').html(that.highlighter(item))
-        return i[0]
-      })
-
-      items.first().addClass('active')
-      this.$menu.html(items)
-      return this
-    }
-
-  , next: function (event) {
-      var active = this.$menu.find('.active').removeClass('active')
-        , next = active.next()
-
-      if (!next.length) {
-        next = $(this.$menu.find('li')[0])
-      }
-
-      next.addClass('active')
-    }
-
-  , prev: function (event) {
-      var active = this.$menu.find('.active').removeClass('active')
-        , prev = active.prev()
-
-      if (!prev.length) {
-        prev = this.$menu.find('li').last()
-      }
-
-      prev.addClass('active')
-    }
-
-  , listen: function () {
-      this.$element
-        .on('blur',     $.proxy(this.blur, this))
-        .on('keypress', $.proxy(this.keypress, this))
-        .on('keyup',    $.proxy(this.keyup, this))
-
-      if ($.browser.webkit || $.browser.msie) {
-        this.$element.on('keydown', $.proxy(this.keypress, this))
-      }
-
-      this.$menu
-        .on('click', $.proxy(this.click, this))
-        .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
-    }
-
-  , keyup: function (e) {
-      e.stopPropagation()
-      e.preventDefault()
-
-      switch(e.keyCode) {
-        case 40: // down arrow
-        case 38: // up arrow
-          break
-
-        case 9: // tab
-        case 13: // enter
-          if (!this.shown) return
-          this.select()
-          break
-
-        case 27: // escape
-          this.hide()
-          break
-
-        default:
-          this.lookup()
-      }
-
-  }
-
-  , keypress: function (e) {
-      e.stopPropagation()
-      if (!this.shown) return
-
-      switch(e.keyCode) {
-        case 9: // tab
-        case 13: // enter
-        case 27: // escape
-          e.preventDefault()
-          break
-
-        case 38: // up arrow
-          e.preventDefault()
-          this.prev()
-          break
-
-        case 40: // down arrow
-          e.preventDefault()
-          this.next()
-          break
-      }
-    }
-
-  , blur: function (e) {
-      var that = this
-      e.stopPropagation()
-      e.preventDefault()
-      setTimeout(function () { that.hide() }, 150)
-    }
-
-  , click: function (e) {
-      e.stopPropagation()
-      e.preventDefault()
-      this.select()
-    }
-
-  , mouseenter: function (e) {
-      this.$menu.find('.active').removeClass('active')
-      $(e.currentTarget).addClass('active')
-    }
-
-  }
-
-
-  /* TYPEAHEAD PLUGIN DEFINITION
-   * =========================== */
-
-  $.fn.typeahead = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('typeahead')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('typeahead', (data = new Typeahead(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.typeahead.defaults = {
-    source: []
-  , items: 8
-  , menu: '<ul class="typeahead dropdown-menu"></ul>'
-  , item: '<li><a href="#"></a></li>'
-  }
-
-  $.fn.typeahead.Constructor = Typeahead
-
-
- /* TYPEAHEAD DATA-API
-  * ================== */
-
-  $(function () {
-    $('body').on('focus.typeahead.data-api', '[data-provide="typeahead"]', function (e) {
-      var $this = $(this)
-      if ($this.data('typeahead')) return
-      e.preventDefault()
-      $this.typeahead($this.data())
-    })
-  })
-
-}( window.jQuery );/**
- * Lawnchair!
- * ---
- * clientside json store
- *
- */
-var Lawnchair = function () {
-    // lawnchair requires json
-    if (!JSON) throw 'JSON unavailable! Include http://www.json.org/json2.js to fix.'
-    // options are optional; callback is not
-    if (arguments.length <= 2 && arguments.length > 0) {
-        var callback = (typeof arguments[0] === 'function') ? arguments[0] : arguments[1]
-        ,   options  = (typeof arguments[0] === 'function') ? {} : arguments[0]
-    } else {
-        throw 'Incorrect # of ctor args!'
-    }
-    // TODO perhaps allow for pub/sub instead?
-    if (typeof callback !== 'function') throw 'No callback was provided';
-
-    // ensure we init with this set to the Lawnchair prototype
-    var self = (!(this instanceof Lawnchair))
-             ? new Lawnchair(options, callback)
-             : this
-
-    // default configuration
-    self.record = options.record || 'record'  // default for records
-    self.name   = options.name   || 'records' // default name for underlying store
-
-    // mixin first valid  adapter
-    var adapter
-    // if the adapter is passed in we try to load that only
-    if (options.adapter) {
-        adapter = Lawnchair.adapters[self.indexOf(Lawnchair.adapters, options.adapter)]
-        adapter = adapter.valid() ? adapter : undefined
-    // otherwise find the first valid adapter for this env
-    }
-    else {
-        for (var i = 0, l = Lawnchair.adapters.length; i < l; i++) {
-            adapter = Lawnchair.adapters[i].valid() ? Lawnchair.adapters[i] : undefined
-            if (adapter) break
-        }
-    }
-
-    // we have failed
-    if (!adapter) throw 'No valid adapter.'
-
-    // yay! mixin the adapter
-    for (var j in adapter)
-        self[j] = adapter[j]
-
-    // call init for each mixed in plugin
-    for (var i = 0, l = Lawnchair.plugins.length; i < l; i++)
-        Lawnchair.plugins[i].call(self)
-
-    // init the adapter
-    self.init(options, callback)
-
-    // called as a function or as a ctor with new always return an instance
-    return self
 }
 
-Lawnchair.adapters = []
-
-/**
- * queues an adapter for mixin
- * ===
- * - ensures an adapter conforms to a specific interface
- *
- */
-Lawnchair.adapter = function (id, obj) {
-    // add the adapter id to the adapter obj
-    // ugly here for a  cleaner dsl for implementing adapters
-    obj['adapter'] = id
-    // methods required to implement a lawnchair adapter
-    var implementing = 'adapter valid init keys save batch get exists all remove nuke'.split(' ')
-    ,   indexOf = this.prototype.indexOf
-    // mix in the adapter
-    for (var i in obj) {
-        if (indexOf(implementing, i) === -1) throw 'Invalid adapter! Nonstandard method: ' + i
+function addSingleNew() {
+    var scope = angular.element('.summaries').scope();
+    var item = new WReader.Item();
+    var i = Math.floor(Math.random() * 1000000000);
+    item.item_id = i;
+    item.key = i;
+    item.pub_name = feeds[Math.floor(Math.random() * feeds.length)];
+    item.pub_author = names[Math.floor(Math.random() * names.length)] + " " + names[Math.floor(Math.random() * names.length)];
+    item.title = "Item Title " + i.toString();
+    item.item_link = "http://url/" + i.toString();
+    item.feed_link = "http://url/" + i.toString();
+    item.content = "<p>" + item.title + "<p>" + lorem;
+    item.short_desc = item.content.substr(0, 128) + "...";
+    item.pub_date = new Date().toJSON();
+    item.read = false;
+    if (Math.random() > 0.5) {
+        item.starred = true;
     }
-    // if we made it this far the adapter interface is valid
-	// insert the new adapter as the preferred adapter
-	Lawnchair.adapters.splice(0,0,obj)
-}
+    scope.$apply(scope.addItem(item));
+}// usage: log('inside coolFunc', this, arguments);
+// paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
+window.log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
 
-Lawnchair.plugins = []
+// make it safe to use console.log always
+(function(a){function b(){}for(var c="assert,count,debug,dir,dirxml,error,exception,group,groupCollapsed,groupEnd,info,log,markTimeline,profile,profileEnd,time,timeEnd,trace,warn".split(","),d;!!(d=c.pop());){a[d]=a[d]||b;}})
+(function(){try{console.log();return window.console;}catch(a){return (window.console={});}}());
 
-/**
- * generic shallow extension for plugins
- * ===
- * - if an init method is found it registers it to be called when the lawnchair is inited
- * - yes we could use hasOwnProp but nobody here is an asshole
- */
-Lawnchair.plugin = function (obj) {
-    for (var i in obj)
-        i === 'init' ? Lawnchair.plugins.push(obj[i]) : this.prototype[i] = obj[i]
-}
 
-/**
- * helpers
- *
- */
-Lawnchair.prototype = {
+// place any jQuery/helper plugins in here, instead of separate, slower script files.
 
-    isArray: Array.isArray || function(o) { return Object.prototype.toString.call(o) === '[object Array]' },
-
-    /**
-     * this code exists for ie8... for more background see:
-     * http://www.flickr.com/photos/westcoastlogic/5955365742/in/photostream
-     */
-    indexOf: function(ary, item, i, l) {
-        if (ary.indexOf) return ary.indexOf(item)
-        for (i = 0, l = ary.length; i < l; i++) if (ary[i] === item) return i
-        return -1
-    },
-
-	// awesome shorthand callbacks as strings. this is shameless theft from dojo.
-	lambda: function (callback) {
-	    return this.fn(this.record, callback)
-    },
-
-    // first stab at named parameters for terse callbacks; dojo: first != best // ;D
-    fn: function (name, callback) {
-		return typeof callback == 'string' ? new Function(name, callback) : callback
-    },
-
-	// returns a unique identifier (by way of Backbone.localStorage.js)
-	// TODO investigate smaller UUIDs to cut on storage cost
-	uuid: function () {
-	    var S4 = function () {
-            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-        }
-        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-	},
-
-    // a classic iterator
-	each: function (callback) {
-        var cb = this.lambda(callback)
-        // iterate from chain
-        if (this.__results) {
-            for (var i = 0, l = this.__results.length; i < l; i++) cb.call(this, this.__results[i], i)
-        }
-        // otherwise iterate the entire collection
-        else {
-            this.all(function(r) {
-                for (var i = 0, l = r.length; i < l; i++) cb.call(this, r[i], i)
-            })
-        }
-        return this
-	}
-// --
-};
-/**
- * dom storage adapter
- * ===
- * - originally authored by Joseph Pecoraro
- *
- */
-//
-// TODO does it make sense to be chainable all over the place?
-// chainable: nuke, remove, all, get, save, all
-// not chainable: valid, keys
-//
-Lawnchair.adapter('dom', {
-    // ensure we are in an env with localStorage
-    valid: function () {
-        return !!window.Storage
-    },
-
-	init: function (options, callback) {
-        // yay dom!
-        this.storage = window.localStorage
-        // indexer helper code
-        var self = this
-        // the indexer is an encapsulation of the helpers needed to keep an ordered index of the keys
-        this.indexer = {
-            // the key
-            key: self.name + '._index_',
-            // returns the index
-            all: function() {
-                var a = JSON.parse(self.storage.getItem(this.key))
-                if (a == null) self.storage.setItem(this.key, JSON.stringify([])) // lazy init
-                return JSON.parse(self.storage.getItem(this.key))
-            },
-            // adds a key to the index
-            add: function (key) {
-                var a = this.all()
-                a.push(key)
-                self.storage.setItem(this.key, JSON.stringify(a))
-            },
-            // deletes a key from the index
-            del: function (key) {
-                var a = this.all(), r = []
-                // FIXME this is crazy inefficient but I'm in a strata meeting and half concentrating
-                for (var i = 0, l = a.length; i < l; i++) {
-                    if (a[i] != key) r.push(a[i])
-                }
-                self.storage.setItem(this.key, JSON.stringify(r))
-            },
-            // returns index for a key
-            find: function (key) {
-                var a = this.all()
-                for (var i = 0, l = a.length; i < l; i++) {
-                    if (key === a[i]) return i
-                }
-                return false
-            }
-        }
-
-        if (callback) this.fn(this.name, callback).call(this, this)
-	},
-
-    save: function (obj, callback) {
-		var key = obj.key || this.uuid()
-        // if the key is not in the index push it on
-        if (!this.indexer.find(key)) this.indexer.add(key)
-	    // now we kil the key and use it in the store colleciton
-        delete obj.key;
-		this.storage.setItem(key, JSON.stringify(obj))
-		if (callback) {
-		    obj.key = key
-            this.lambda(callback).call(this, obj)
-		}
-        return this
-	},
-
-    batch: function (ary, callback) {
-        var saved = []
-        // not particularily efficient but this is more for sqlite situations
-        for (var i = 0, l = ary.length; i < l; i++) {
-            this.save(ary[i], function(r){
-                saved.push(r)
-            })
-        }
-        if (callback) this.lambda(callback).call(this, saved)
-        return this
-    },
-
-    // accepts [options], callback
-    keys: function() {
-        // TODO support limit/offset options here
-        var limit = options.limit || null
-        ,   offset = options.offset || 0
-        if (callback) this.lambda(callback).call(this, this.indexer.all())
-    },
-
-    get: function (key, callback) {
-        if (this.isArray(key)) {
-            var r = []
-            for (var i = 0, l = key.length; i < l; i++) {
-                var obj = JSON.parse(this.storage.getItem(key[i]))
-                if (obj) {
-                    obj.key = key[i]
-                    r.push(obj)
-                }
-            }
-            if (callback) this.lambda(callback).call(this, r)
-        } else {
-            var obj = JSON.parse(this.storage.getItem(key))
-            if (obj) obj.key = key
-            if (callback) this.lambda(callback).call(this, obj)
-        }
-        return this
-    },
-    // NOTE adapters cannot set this.__results but plugins do
-    // this probably should be reviewed
-	all: function (callback) {
-        var idx = this.indexer.all()
-        ,   r   = []
-        ,   o
-        for (var i = 0, l = idx.length; i < l; i++) {
-            o = JSON.parse(this.storage.getItem(idx[i]))
-            o.key = idx[i]
-            r.push(o)
-        }
-		if (callback) this.fn(this.name, callback).call(this, r)
-        return this
-	},
-
-    remove: function (keyOrObj, callback) {
-        var key = typeof keyOrObj === 'string' ? keyOrObj : keyOrObj.key
-        this.indexer.del(key)
-		this.storage.removeItem(key)
-		if (callback) this.lambda(callback).call(this)
-        return this
-	},
-
-    nuke: function (callback) {
-		this.all(function(r) {
-			for (var i = 0, l = r.length; i < l; i++) {
-				this.remove(r[i]);
-			}
-			if (callback) this.lambda(callback).call(this)
-		})
-        return this
-	}
-});
-// window.name code courtesy Remy Sharp: http://24ways.org/2009/breaking-out-the-edges-of-the-browser
-Lawnchair.adapter('window-name', (function(index, store) {
-
-    var data = window.top.name ? JSON.parse(window.top.name) : {}
-
-    return {
-
-        valid: function () {
-            return typeof window.top.name != 'undefined'
-        },
-
-        init: function (options, callback) {
-            data[this.name] = {index:[],store:{}}
-            index = data[this.name].index
-            store = data[this.name].store
-            this.fn(this.name, callback).call(this, this)
-        },
-
-        keys: function (callback) {
-            this.fn('keys', callback).call(this, index)
-            return this
-        },
-
-        save: function (obj, cb) {
-            // data[key] = value + ''; // force to string
-            // window.top.name = JSON.stringify(data);
-            var key = obj.key || this.uuid()
-            if (obj.key) delete obj.key
-            this.exists(key, function(exists) {
-                if (!exists) index.push(key)
-                store[key] = obj
-                window.top.name = JSON.stringify(data) // TODO wow, this is the only diff from the memory adapter
-                if (cb) {
-                    obj.key = key
-                    this.lambda(cb).call(this, obj)
-                }
-            })
-            return this
-        },
-
-        batch: function (objs, cb) {
-            var r = []
-            for (var i = 0, l = objs.length; i < l; i++) {
-                this.save(objs[i], function(record) {
-                    r.push(record)
-                })
-            }
-            if (cb) this.lambda(cb).call(this, r)
-            return this
-        },
-
-        get: function (keyOrArray, cb) {
-            var r;
-            if (this.isArray(keyOrArray)) {
-                r = []
-                for (var i = 0, l = keyOrArray.length; i < l; i++) {
-                    r.push(store[keyOrArray[i]])
-                }
-            } else {
-                r = store[keyOrArray]
-                if (r) r.key = keyOrArray
-            }
-            if (cb) this.lambda(cb).call(this, r)
-            return this
-        },
-
-        exists: function (key, cb) {
-            this.lambda(cb).call(this, !!(store[key]))
-            return this
-        },
-
-        all: function (cb) {
-            var r = []
-            for (var i = 0, l = index.length; i < l; i++) {
-                var obj = store[index[i]]
-                obj.key = index[i]
-                r.push(obj)
-            }
-            this.fn(this.name, cb).call(this, r)
-            return this
-        },
-
-		remove: function (keyOrArray, cb) {
-            var del = this.isArray(keyOrArray) ? keyOrArray : [keyOrArray]
-            for (var i = 0, l = del.length; i < l; i++) {
-                delete store[del[i]]
-                index.splice(this.indexOf(index, del[i]), 1)
-            }
-            window.top.name = JSON.stringify(data)
-            if (cb) this.lambda(cb).call(this)
-            return this
-        },
-
-        nuke: function (cb) {
-            storage = {}
-            index = []
-            window.top.name = JSON.stringify(data)
-            if (cb) this.lambda(cb).call(this)
-            return this
-        }
-    }
-/////
-})());
 // moment.js
 // version : 1.5.0
 // author : Tim Wood
@@ -2852,14 +812,1415 @@ Lawnchair.adapter('window-name', (function(index, store) {
         });
     }
 })(Date);
-// usage: log('inside coolFunc', this, arguments);
-// paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-window.log = function f(){ log.history = log.history || []; log.history.push(arguments); if(this.console) { var args = arguments, newarr; args.callee = args.callee.caller; newarr = [].slice.call(args); if (typeof console.log === 'object') log.apply.call(console.log, console, newarr); else console.log.apply(console, newarr);}};
+/*!
+ * AmplifyJS 1.1.0 - Core, Store, Request
+ * 
+ * Copyright 2011 appendTo LLC. (http://appendto.com/team)
+ * Dual licensed under the MIT or GPL licenses.
+ * http://appendto.com/open-source-licenses
+ * 
+ * http://amplifyjs.com
+ */
+/*!
+ * Amplify Core 1.1.0
+ * 
+ * Copyright 2011 appendTo LLC. (http://appendto.com/team)
+ * Dual licensed under the MIT or GPL licenses.
+ * http://appendto.com/open-source-licenses
+ * 
+ * http://amplifyjs.com
+ */
+(function( global, undefined ) {
 
-// make it safe to use console.log always
-(function(a){function b(){}for(var c="assert,count,debug,dir,dirxml,error,exception,group,groupCollapsed,groupEnd,info,log,markTimeline,profile,profileEnd,time,timeEnd,trace,warn".split(","),d;!!(d=c.pop());){a[d]=a[d]||b;}})
-(function(){try{console.log();return window.console;}catch(a){return (window.console={});}}());
+var slice = [].slice,
+	subscriptions = {};
+
+var amplify = global.amplify = {
+	publish: function( topic ) {
+		var args = slice.call( arguments, 1 ),
+			topicSubscriptions,
+			subscription,
+			length,
+			i = 0,
+			ret;
+
+		if ( !subscriptions[ topic ] ) {
+			return true;
+		}
+
+		topicSubscriptions = subscriptions[ topic ].slice();
+		for ( length = topicSubscriptions.length; i < length; i++ ) {
+			subscription = topicSubscriptions[ i ];
+			ret = subscription.callback.apply( subscription.context, args );
+			if ( ret === false ) {
+				break;
+			}
+		}
+		return ret !== false;
+	},
+
+	subscribe: function( topic, context, callback, priority ) {
+		if ( arguments.length === 3 && typeof callback === "number" ) {
+			priority = callback;
+			callback = context;
+			context = null;
+		}
+		if ( arguments.length === 2 ) {
+			callback = context;
+			context = null;
+		}
+		priority = priority || 10;
+
+		var topicIndex = 0,
+			topics = topic.split( /\s/ ),
+			topicLength = topics.length,
+			added;
+		for ( ; topicIndex < topicLength; topicIndex++ ) {
+			topic = topics[ topicIndex ];
+			added = false;
+			if ( !subscriptions[ topic ] ) {
+				subscriptions[ topic ] = [];
+			}
+	
+			var i = subscriptions[ topic ].length - 1,
+				subscriptionInfo = {
+					callback: callback,
+					context: context,
+					priority: priority
+				};
+	
+			for ( ; i >= 0; i-- ) {
+				if ( subscriptions[ topic ][ i ].priority <= priority ) {
+					subscriptions[ topic ].splice( i + 1, 0, subscriptionInfo );
+					added = true;
+					break;
+				}
+			}
+
+			if ( !added ) {
+				subscriptions[ topic ].unshift( subscriptionInfo );
+			}
+		}
+
+		return callback;
+	},
+
+	unsubscribe: function( topic, callback ) {
+		if ( !subscriptions[ topic ] ) {
+			return;
+		}
+
+		var length = subscriptions[ topic ].length,
+			i = 0;
+
+		for ( ; i < length; i++ ) {
+			if ( subscriptions[ topic ][ i ].callback === callback ) {
+				subscriptions[ topic ].splice( i, 1 );
+				break;
+			}
+		}
+	}
+};
+
+}( this ) );
+/*!
+ * Amplify Store - Persistent Client-Side Storage 1.1.0
+ * 
+ * Copyright 2011 appendTo LLC. (http://appendto.com/team)
+ * Dual licensed under the MIT or GPL licenses.
+ * http://appendto.com/open-source-licenses
+ * 
+ * http://amplifyjs.com
+ */
+(function( amplify, undefined ) {
+
+var store = amplify.store = function( key, value, options, type ) {
+	var type = store.type;
+	if ( options && options.type && options.type in store.types ) {
+		type = options.type;
+	}
+	return store.types[ type ]( key, value, options || {} );
+};
+
+store.types = {};
+store.type = null;
+store.addType = function( type, storage ) {
+	if ( !store.type ) {
+		store.type = type;
+	}
+
+	store.types[ type ] = storage;
+	store[ type ] = function( key, value, options ) {
+		options = options || {};
+		options.type = type;
+		return store( key, value, options );
+	};
+}
+store.error = function() {
+	return "amplify.store quota exceeded"; 
+};
+
+var rprefix = /^__amplify__/;
+function createFromStorageInterface( storageType, storage ) {
+	store.addType( storageType, function( key, value, options ) {
+		var storedValue, parsed, i, remove,
+			ret = value,
+			now = (new Date()).getTime();
+
+		if ( !key ) {
+			ret = {};
+			remove = [];
+			i = 0;
+			try {
+				// accessing the length property works around a localStorage bug
+				// in Firefox 4.0 where the keys don't update cross-page
+				// we assign to key just to avoid Closure Compiler from removing
+				// the access as "useless code"
+				// https://bugzilla.mozilla.org/show_bug.cgi?id=662511
+				key = storage.length;
+
+				while ( key = storage.key( i++ ) ) {
+					if ( rprefix.test( key ) ) {
+						parsed = JSON.parse( storage.getItem( key ) );
+						if ( parsed.expires && parsed.expires <= now ) {
+							remove.push( key );
+						} else {
+							ret[ key.replace( rprefix, "" ) ] = parsed.data;
+						}
+					}
+				}
+				while ( key = remove.pop() ) {
+					storage.removeItem( key );
+				}
+			} catch ( error ) {}
+			return ret;
+		}
+
+		// protect against name collisions with direct storage
+		key = "__amplify__" + key;
+
+		if ( value === undefined ) {
+			storedValue = storage.getItem( key );
+			parsed = storedValue ? JSON.parse( storedValue ) : { expires: -1 };
+			if ( parsed.expires && parsed.expires <= now ) {
+				storage.removeItem( key );
+			} else {
+				return parsed.data;
+			}
+		} else {
+			if ( value === null ) {
+				storage.removeItem( key );
+			} else {
+				parsed = JSON.stringify({
+					data: value,
+					expires: options.expires ? now + options.expires : null
+				});
+				try {
+					storage.setItem( key, parsed );
+				// quota exceeded
+				} catch( error ) {
+					// expire old data and try again
+					store[ storageType ]();
+					try {
+						storage.setItem( key, parsed );
+					} catch( error ) {
+						throw store.error();
+					}
+				}
+			}
+		}
+
+		return ret;
+	});
+}
+
+// localStorage + sessionStorage
+// IE 8+, Firefox 3.5+, Safari 4+, Chrome 4+, Opera 10.5+, iPhone 2+, Android 2+
+for ( var webStorageType in { localStorage: 1, sessionStorage: 1 } ) {
+	// try/catch for file protocol in Firefox
+	try {
+		if ( window[ webStorageType ].getItem ) {
+			createFromStorageInterface( webStorageType, window[ webStorageType ] );
+		}
+	} catch( e ) {}
+}
+
+// globalStorage
+// non-standard: Firefox 2+
+// https://developer.mozilla.org/en/dom/storage#globalStorage
+if ( window.globalStorage ) {
+	// try/catch for file protocol in Firefox
+	try {
+		createFromStorageInterface( "globalStorage",
+			window.globalStorage[ window.location.hostname ] );
+		// Firefox 2.0 and 3.0 have sessionStorage and globalStorage
+		// make sure we default to globalStorage
+		// but don't default to globalStorage in 3.5+ which also has localStorage
+		if ( store.type === "sessionStorage" ) {
+			store.type = "globalStorage";
+		}
+	} catch( e ) {}
+}
+
+// userData
+// non-standard: IE 5+
+// http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
+(function() {
+	// IE 9 has quirks in userData that are a huge pain
+	// rather than finding a way to detect these quirks
+	// we just don't register userData if we have localStorage
+	if ( store.types.localStorage ) {
+		return;
+	}
+
+	// append to html instead of body so we can do this from the head
+	var div = document.createElement( "div" ),
+		attrKey = "amplify";
+	div.style.display = "none";
+	document.getElementsByTagName( "head" )[ 0 ].appendChild( div );
+
+	// we can't feature detect userData support
+	// so just try and see if it fails
+	// surprisingly, even just adding the behavior isn't enough for a failure
+	// so we need to load the data as well
+	try {
+		div.addBehavior( "#default#userdata" );
+		div.load( attrKey );
+	} catch( e ) {
+		div.parentNode.removeChild( div );
+		return;
+	}
+
+	store.addType( "userData", function( key, value, options ) {
+		div.load( attrKey );
+		var attr, parsed, prevValue, i, remove,
+			ret = value,
+			now = (new Date()).getTime();
+
+		if ( !key ) {
+			ret = {};
+			remove = [];
+			i = 0;
+			while ( attr = div.XMLDocument.documentElement.attributes[ i++ ] ) {
+				parsed = JSON.parse( attr.value );
+				if ( parsed.expires && parsed.expires <= now ) {
+					remove.push( attr.name );
+				} else {
+					ret[ attr.name ] = parsed.data;
+				}
+			}
+			while ( key = remove.pop() ) {
+				div.removeAttribute( key );
+			}
+			div.save( attrKey );
+			return ret;
+		}
+
+		// convert invalid characters to dashes
+		// http://www.w3.org/TR/REC-xml/#NT-Name
+		// simplified to assume the starting character is valid
+		// also removed colon as it is invalid in HTML attribute names
+		key = key.replace( /[^-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, "-" );
+
+		if ( value === undefined ) {
+			attr = div.getAttribute( key );
+			parsed = attr ? JSON.parse( attr ) : { expires: -1 };
+			if ( parsed.expires && parsed.expires <= now ) {
+				div.removeAttribute( key );
+			} else {
+				return parsed.data;
+			}
+		} else {
+			if ( value === null ) {
+				div.removeAttribute( key );
+			} else {
+				// we need to get the previous value in case we need to rollback
+				prevValue = div.getAttribute( key );
+				parsed = JSON.stringify({
+					data: value,
+					expires: (options.expires ? (now + options.expires) : null)
+				});
+				div.setAttribute( key, parsed );
+			}
+		}
+
+		try {
+			div.save( attrKey );
+		// quota exceeded
+		} catch ( error ) {
+			// roll the value back to the previous value
+			if ( prevValue === null ) {
+				div.removeAttribute( key );
+			} else {
+				div.setAttribute( key, prevValue );
+			}
+
+			// expire old data and try again
+			store.userData();
+			try {
+				div.setAttribute( key, parsed );
+				div.save( attrKey );
+			} catch ( error ) {
+				// roll the value back to the previous value
+				if ( prevValue === null ) {
+					div.removeAttribute( key );
+				} else {
+					div.setAttribute( key, prevValue );
+				}
+				throw store.error();
+			}
+		}
+		return ret;
+	});
+}() );
+
+// in-memory storage
+// fallback for all browsers to enable the API even if we can't persist data
+(function() {
+	var memory = {},
+		timeout = {};
+
+	function copy( obj ) {
+		return obj === undefined ? undefined : JSON.parse( JSON.stringify( obj ) );
+	}
+
+	store.addType( "memory", function( key, value, options ) {
+		if ( !key ) {
+			return copy( memory );
+		}
+
+		if ( value === undefined ) {
+			return copy( memory[ key ] );
+		}
+
+		if ( timeout[ key ] ) {
+			clearTimeout( timeout[ key ] );
+			delete timeout[ key ];
+		}
+
+		if ( value === null ) {
+			delete memory[ key ];
+			return null;
+		}
+
+		memory[ key ] = value;
+		if ( options.expires ) {
+			timeout[ key ] = setTimeout(function() {
+				delete memory[ key ];
+				delete timeout[ key ];
+			}, options.expires );
+		}
+
+		return value;
+	});
+}() );
+
+}( this.amplify = this.amplify || {} ) );
+/*!
+ * Amplify Request 1.1.0
+ * 
+ * Copyright 2011 appendTo LLC. (http://appendto.com/team)
+ * Dual licensed under the MIT or GPL licenses.
+ * http://appendto.com/open-source-licenses
+ * 
+ * http://amplifyjs.com
+ */
+(function( amplify, undefined ) {
+
+function noop() {}
+function isFunction( obj ) {
+	return ({}).toString.call( obj ) === "[object Function]";
+}
+
+function async( fn ) {
+	var isAsync = false;
+	setTimeout(function() {
+		isAsync = true;
+	}, 1 );
+	return function() {
+		var that = this,
+			args = arguments;
+		if ( isAsync ) {
+			fn.apply( that, args );
+		} else {
+			setTimeout(function() {
+				fn.apply( that, args );
+			}, 1 );
+		}
+	};
+}
+
+amplify.request = function( resourceId, data, callback ) {
+	// default to an empty hash just so we can handle a missing resourceId
+	// in one place
+	var settings = resourceId || {};
+
+	if ( typeof settings === "string" ) {
+		if ( isFunction( data ) ) {
+			callback = data;
+			data = {};
+		}
+		settings = {
+			resourceId: resourceId,
+			data: data || {},
+			success: callback
+		};
+	}
+
+	var request = { abort: noop },
+		resource = amplify.request.resources[ settings.resourceId ],
+		success = settings.success || noop,
+		error = settings.error || noop;
+	settings.success = async( function( data, status ) {
+		status = status || "success";
+		amplify.publish( "request.success", settings, data, status );
+		amplify.publish( "request.complete", settings, data, status );
+		success( data, status );
+	});
+	settings.error = async( function( data, status ) {
+		status = status || "error";
+		amplify.publish( "request.error", settings, data, status );
+		amplify.publish( "request.complete", settings, data, status );
+		error( data, status );
+	});
+
+	if ( !resource ) {
+		if ( !settings.resourceId ) {
+			throw "amplify.request: no resourceId provided";
+		}
+		throw "amplify.request: unknown resourceId: " + settings.resourceId;
+	}
+
+	if ( !amplify.publish( "request.before", settings ) ) {
+		settings.error( null, "abort" );
+		return;
+	}
+
+	amplify.request.resources[ settings.resourceId ]( settings, request );
+	return request;
+};
+
+amplify.request.types = {};
+amplify.request.resources = {};
+amplify.request.define = function( resourceId, type, settings ) {
+	if ( typeof type === "string" ) {
+		if ( !( type in amplify.request.types ) ) {
+			throw "amplify.request.define: unknown type: " + type;
+		}
+
+		settings.resourceId = resourceId;
+		amplify.request.resources[ resourceId ] =
+			amplify.request.types[ type ]( settings );
+	} else {
+		// no pre-processor or settings for one-off types (don't invoke)
+		amplify.request.resources[ resourceId ] = type;
+	}
+};
+
+}( amplify ) );
 
 
-// place any jQuery/helper plugins in here, instead of separate, slower script files.
 
+
+
+(function( amplify, $, undefined ) {
+
+var xhrProps = [ "status", "statusText", "responseText", "responseXML", "readyState" ],
+    rurlData = /\{([^\}]+)\}/g;
+
+amplify.request.types.ajax = function( defnSettings ) {
+	defnSettings = $.extend({
+		type: "GET"
+	}, defnSettings );
+
+	return function( settings, request ) {
+		var xhr,
+			url = defnSettings.url,
+			abort = request.abort,
+			ajaxSettings = $.extend( true, {}, defnSettings, { data: settings.data } ),
+			aborted = false,
+			ampXHR = {
+				readyState: 0,
+				setRequestHeader: function( name, value ) {
+					return xhr.setRequestHeader( name, value );
+				},
+				getAllResponseHeaders: function() {
+					return xhr.getAllResponseHeaders();
+				},
+				getResponseHeader: function( key ) {
+					return xhr.getResponseHeader( key );
+				},
+				overrideMimeType: function( type ) {
+					return xhr.overrideMideType( type );
+				},
+				abort: function() {
+					aborted = true;
+					try {
+						xhr.abort();
+					// IE 7 throws an error when trying to abort
+					} catch( e ) {}
+					handleResponse( null, "abort" );
+				},
+				success: function( data, status ) {
+					settings.success( data, status );
+				},
+				error: function( data, status ) {
+					settings.error( data, status );
+				}
+			};
+
+		amplify.publish( "request.ajax.preprocess",
+			defnSettings, settings, ajaxSettings, ampXHR );
+
+		$.extend( ajaxSettings, {
+			success: function( data, status ) {
+				handleResponse( data, status );
+			},
+			error: function( _xhr, status ) {
+				handleResponse( null, status );
+			},
+			beforeSend: function( _xhr, _ajaxSettings ) {
+				xhr = _xhr;
+				ajaxSettings = _ajaxSettings;
+				var ret = defnSettings.beforeSend ?
+					defnSettings.beforeSend.call( this, ampXHR, ajaxSettings ) : true;
+				return ret && amplify.publish( "request.before.ajax",
+					defnSettings, settings, ajaxSettings, ampXHR );
+			}
+		});
+		$.ajax( ajaxSettings );
+
+		function handleResponse( data, status ) {
+			$.each( xhrProps, function( i, key ) {
+				try {
+					ampXHR[ key ] = xhr[ key ];
+				} catch( e ) {}
+			});
+			// Playbook returns "HTTP/1.1 200 OK"
+			// TODO: something also returns "OK", what?
+			if ( /OK$/.test( ampXHR.statusText ) ) {
+				ampXHR.statusText = "success";
+			}
+			if ( data === undefined ) {
+				// TODO: add support for ajax errors with data
+				data = null;
+			}
+			if ( aborted ) {
+				status = "abort";
+			}
+			if ( /timeout|error|abort/.test( status ) ) {
+				ampXHR.error( data, status );
+			} else {
+				ampXHR.success( data, status );
+			}
+			// avoid handling a response multiple times
+			// this can happen if a request is aborted
+			// TODO: figure out if this breaks polling or multi-part responses
+			handleResponse = $.noop;
+		}
+
+		request.abort = function() {
+			ampXHR.abort();
+			abort.call( this );
+		};
+	};
+};
+
+
+
+amplify.subscribe( "request.ajax.preprocess", function( defnSettings, settings, ajaxSettings ) {
+	var mappedKeys = [],
+		data = ajaxSettings.data;
+
+	if ( typeof data === "string" ) {
+		return;
+	}
+
+	data = $.extend( true, {}, defnSettings.data, data );
+
+	ajaxSettings.url = ajaxSettings.url.replace( rurlData, function ( m, key ) {
+		if ( key in data ) {
+		    mappedKeys.push( key );
+		    return data[ key ];
+		}
+	});
+
+	// We delete the keys later so duplicates are still replaced
+	$.each( mappedKeys, function ( i, key ) {
+		delete data[ key ];
+	});
+
+	ajaxSettings.data = data;
+});
+
+
+
+amplify.subscribe( "request.ajax.preprocess", function( defnSettings, settings, ajaxSettings ) {
+	var data = ajaxSettings.data,
+		dataMap = defnSettings.dataMap;
+
+	if ( !dataMap || typeof data === "string" ) {
+		return;
+	}
+
+	if ( $.isFunction( dataMap ) ) {
+		ajaxSettings.data = dataMap( data );
+	} else {
+		$.each( defnSettings.dataMap, function( orig, replace ) {
+			if ( orig in data ) {
+				data[ replace ] = data[ orig ];
+				delete data[ orig ];
+			}
+		});
+		ajaxSettings.data = data;
+	}
+});
+
+
+
+var cache = amplify.request.cache = {
+	_key: function( resourceId, url, data ) {
+		data = url + data;
+		var length = data.length,
+			i = 0,
+			checksum = chunk();
+
+		while ( i < length ) {
+			checksum ^= chunk();
+		}
+
+		function chunk() {
+			return data.charCodeAt( i++ ) << 24 |
+				data.charCodeAt( i++ ) << 16 |
+				data.charCodeAt( i++ ) << 8 |
+				data.charCodeAt( i++ ) << 0;
+		}
+
+		return "request-" + resourceId + "-" + checksum;
+	},
+
+	_default: (function() {
+		var memoryStore = {};
+		return function( resource, settings, ajaxSettings, ampXHR ) {
+			// data is already converted to a string by the time we get here
+			var cacheKey = cache._key( settings.resourceId,
+					ajaxSettings.url, ajaxSettings.data ),
+				duration = resource.cache;
+
+			if ( cacheKey in memoryStore ) {
+				ampXHR.success( memoryStore[ cacheKey ] );
+				return false;
+			}
+			var success = ampXHR.success;
+			ampXHR.success = function( data ) {
+				memoryStore[ cacheKey ] = data;
+				if ( typeof duration === "number" ) {
+					setTimeout(function() {
+						delete memoryStore[ cacheKey ];
+					}, duration );
+				}
+				success.apply( this, arguments );
+			};
+		};
+	}())
+};
+
+if ( amplify.store ) {
+	$.each( amplify.store.types, function( type ) {
+		cache[ type ] = function( resource, settings, ajaxSettings, ampXHR ) {
+			var cacheKey = cache._key( settings.resourceId,
+					ajaxSettings.url, ajaxSettings.data ),
+				cached = amplify.store[ type ]( cacheKey );
+
+			if ( cached ) {
+				ajaxSettings.success( cached );
+				return false;
+			}
+			var success = ampXHR.success;
+			ampXHR.success = function( data ) {	
+				amplify.store[ type ]( cacheKey, data, { expires: resource.cache.expires } );
+				success.apply( this, arguments );
+			};
+		};
+	});
+	cache.persist = cache[ amplify.store.type ];
+}
+
+amplify.subscribe( "request.before.ajax", function( resource ) {
+	var cacheType = resource.cache;
+	if ( cacheType ) {
+		// normalize between objects and strings/booleans/numbers
+		cacheType = cacheType.type || cacheType;
+		return cache[ cacheType in cache ? cacheType : "_default" ]
+			.apply( this, arguments );
+	}
+});
+
+
+
+amplify.request.decoders = {
+	// http://labs.omniti.com/labs/jsend
+	jsend: function( data, status, ampXHR, success, error ) {
+		if ( data.status === "success" ) {
+			success( data.data );
+		} else if ( data.status === "fail" ) {
+			error( data.data, "fail" );
+		} else if ( data.status === "error" ) {
+			delete data.status;
+			error( data, "error" );
+		}
+	}
+};
+
+amplify.subscribe( "request.before.ajax", function( resource, settings, ajaxSettings, ampXHR ) {
+	var _success = ampXHR.success,
+		_error = ampXHR.error,
+		decoder = $.isFunction( resource.decoder )
+			? resource.decoder
+			: resource.decoder in amplify.request.decoders
+				? amplify.request.decoders[ resource.decoder ]
+				: amplify.request.decoders._default;
+
+	if ( !decoder ) {
+		return;
+	}
+
+	function success( data, status ) {
+		_success( data, status );
+	}
+	function error( data, status ) {
+		_error( data, status );
+	}
+	ampXHR.success = function( data, status ) {
+		decoder( data, status, ampXHR, success, error );
+	};
+	ampXHR.error = function( data, status ) {
+		decoder( data, status, ampXHR, success, error );
+	};
+});
+
+}( amplify, jQuery ) );
+/**
+ * Lawnchair!
+ * ---
+ * clientside json store
+ *
+ */
+var Lawnchair = function () {
+    // lawnchair requires json
+    if (!JSON) throw 'JSON unavailable! Include http://www.json.org/json2.js to fix.'
+    // options are optional; callback is not
+    if (arguments.length <= 2 && arguments.length > 0) {
+        var callback = (typeof arguments[0] === 'function') ? arguments[0] : arguments[1]
+        ,   options  = (typeof arguments[0] === 'function') ? {} : arguments[0]
+    } else {
+        throw 'Incorrect # of ctor args!'
+    }
+    // TODO perhaps allow for pub/sub instead?
+    if (typeof callback !== 'function') throw 'No callback was provided';
+
+    // ensure we init with this set to the Lawnchair prototype
+    var self = (!(this instanceof Lawnchair))
+             ? new Lawnchair(options, callback)
+             : this
+
+    // default configuration
+    self.record = options.record || 'record'  // default for records
+    self.name   = options.name   || 'records' // default name for underlying store
+
+    // mixin first valid  adapter
+    var adapter
+    // if the adapter is passed in we try to load that only
+    if (options.adapter) {
+        adapter = Lawnchair.adapters[self.indexOf(Lawnchair.adapters, options.adapter)]
+        adapter = adapter.valid() ? adapter : undefined
+    // otherwise find the first valid adapter for this env
+    }
+    else {
+        for (var i = 0, l = Lawnchair.adapters.length; i < l; i++) {
+            adapter = Lawnchair.adapters[i].valid() ? Lawnchair.adapters[i] : undefined
+            if (adapter) break
+        }
+    }
+
+    // we have failed
+    if (!adapter) throw 'No valid adapter.'
+
+    // yay! mixin the adapter
+    for (var j in adapter)
+        self[j] = adapter[j]
+
+    // call init for each mixed in plugin
+    for (var i = 0, l = Lawnchair.plugins.length; i < l; i++)
+        Lawnchair.plugins[i].call(self)
+
+    // init the adapter
+    self.init(options, callback)
+
+    // called as a function or as a ctor with new always return an instance
+    return self
+}
+
+Lawnchair.adapters = []
+
+/**
+ * queues an adapter for mixin
+ * ===
+ * - ensures an adapter conforms to a specific interface
+ *
+ */
+Lawnchair.adapter = function (id, obj) {
+    // add the adapter id to the adapter obj
+    // ugly here for a  cleaner dsl for implementing adapters
+    obj['adapter'] = id
+    // methods required to implement a lawnchair adapter
+    var implementing = 'adapter valid init keys save batch get exists all remove nuke'.split(' ')
+    ,   indexOf = this.prototype.indexOf
+    // mix in the adapter
+    for (var i in obj) {
+        if (indexOf(implementing, i) === -1) throw 'Invalid adapter! Nonstandard method: ' + i
+    }
+    // if we made it this far the adapter interface is valid
+	// insert the new adapter as the preferred adapter
+	Lawnchair.adapters.splice(0,0,obj)
+}
+
+Lawnchair.plugins = []
+
+/**
+ * generic shallow extension for plugins
+ * ===
+ * - if an init method is found it registers it to be called when the lawnchair is inited
+ * - yes we could use hasOwnProp but nobody here is an asshole
+ */
+Lawnchair.plugin = function (obj) {
+    for (var i in obj)
+        i === 'init' ? Lawnchair.plugins.push(obj[i]) : this.prototype[i] = obj[i]
+}
+
+/**
+ * helpers
+ *
+ */
+Lawnchair.prototype = {
+
+    isArray: Array.isArray || function(o) { return Object.prototype.toString.call(o) === '[object Array]' },
+
+    /**
+     * this code exists for ie8... for more background see:
+     * http://www.flickr.com/photos/westcoastlogic/5955365742/in/photostream
+     */
+    indexOf: function(ary, item, i, l) {
+        if (ary.indexOf) return ary.indexOf(item)
+        for (i = 0, l = ary.length; i < l; i++) if (ary[i] === item) return i
+        return -1
+    },
+
+	// awesome shorthand callbacks as strings. this is shameless theft from dojo.
+	lambda: function (callback) {
+	    return this.fn(this.record, callback)
+    },
+
+    // first stab at named parameters for terse callbacks; dojo: first != best // ;D
+    fn: function (name, callback) {
+		return typeof callback == 'string' ? new Function(name, callback) : callback
+    },
+
+	// returns a unique identifier (by way of Backbone.localStorage.js)
+	// TODO investigate smaller UUIDs to cut on storage cost
+	uuid: function () {
+	    var S4 = function () {
+            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        }
+        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+	},
+
+    // a classic iterator
+	each: function (callback) {
+        var cb = this.lambda(callback)
+        // iterate from chain
+        if (this.__results) {
+            for (var i = 0, l = this.__results.length; i < l; i++) cb.call(this, this.__results[i], i)
+        }
+        // otherwise iterate the entire collection
+        else {
+            this.all(function(r) {
+                for (var i = 0, l = r.length; i < l; i++) cb.call(this, r[i], i)
+            })
+        }
+        return this
+	}
+// --
+};
+/**
+ * dom storage adapter
+ * ===
+ * - originally authored by Joseph Pecoraro
+ *
+ */
+//
+// TODO does it make sense to be chainable all over the place?
+// chainable: nuke, remove, all, get, save, all
+// not chainable: valid, keys
+//
+Lawnchair.adapter('dom', {
+    // ensure we are in an env with localStorage
+    valid: function () {
+        return !!window.Storage
+    },
+
+	init: function (options, callback) {
+        // yay dom!
+        this.storage = window.localStorage
+        // indexer helper code
+        var self = this
+        // the indexer is an encapsulation of the helpers needed to keep an ordered index of the keys
+        this.indexer = {
+            // the key
+            key: self.name + '._index_',
+            // returns the index
+            all: function() {
+                var a = JSON.parse(self.storage.getItem(this.key))
+                if (a == null) self.storage.setItem(this.key, JSON.stringify([])) // lazy init
+                return JSON.parse(self.storage.getItem(this.key))
+            },
+            // adds a key to the index
+            add: function (key) {
+                var a = this.all()
+                a.push(key)
+                self.storage.setItem(this.key, JSON.stringify(a))
+            },
+            // deletes a key from the index
+            del: function (key) {
+                var a = this.all(), r = []
+                // FIXME this is crazy inefficient but I'm in a strata meeting and half concentrating
+                for (var i = 0, l = a.length; i < l; i++) {
+                    if (a[i] != key) r.push(a[i])
+                }
+                self.storage.setItem(this.key, JSON.stringify(r))
+            },
+            // returns index for a key
+            find: function (key) {
+                var a = this.all()
+                for (var i = 0, l = a.length; i < l; i++) {
+                    if (key === a[i]) return i
+                }
+                return false
+            }
+        }
+
+        if (callback) this.fn(this.name, callback).call(this, this)
+	},
+
+    save: function (obj, callback) {
+		var key = obj.key || this.uuid()
+        // if the key is not in the index push it on
+        if (!this.indexer.find(key)) this.indexer.add(key)
+	    // now we kil the key and use it in the store colleciton
+        delete obj.key;
+		this.storage.setItem(key, JSON.stringify(obj))
+		if (callback) {
+		    obj.key = key
+            this.lambda(callback).call(this, obj)
+		}
+        return this
+	},
+
+    batch: function (ary, callback) {
+        var saved = []
+        // not particularily efficient but this is more for sqlite situations
+        for (var i = 0, l = ary.length; i < l; i++) {
+            this.save(ary[i], function(r){
+                saved.push(r)
+            })
+        }
+        if (callback) this.lambda(callback).call(this, saved)
+        return this
+    },
+
+    // accepts [options], callback
+    keys: function() {
+        // TODO support limit/offset options here
+        var limit = options.limit || null
+        ,   offset = options.offset || 0
+        if (callback) this.lambda(callback).call(this, this.indexer.all())
+    },
+
+    get: function (key, callback) {
+        if (this.isArray(key)) {
+            var r = []
+            for (var i = 0, l = key.length; i < l; i++) {
+                var obj = JSON.parse(this.storage.getItem(key[i]))
+                if (obj) {
+                    obj.key = key[i]
+                    r.push(obj)
+                }
+            }
+            if (callback) this.lambda(callback).call(this, r)
+        } else {
+            var obj = JSON.parse(this.storage.getItem(key))
+            if (obj) obj.key = key
+            if (callback) this.lambda(callback).call(this, obj)
+        }
+        return this
+    },
+    // NOTE adapters cannot set this.__results but plugins do
+    // this probably should be reviewed
+	all: function (callback) {
+        var idx = this.indexer.all()
+        ,   r   = []
+        ,   o
+        for (var i = 0, l = idx.length; i < l; i++) {
+            o = JSON.parse(this.storage.getItem(idx[i]))
+            o.key = idx[i]
+            r.push(o)
+        }
+		if (callback) this.fn(this.name, callback).call(this, r)
+        return this
+	},
+
+    remove: function (keyOrObj, callback) {
+        var key = typeof keyOrObj === 'string' ? keyOrObj : keyOrObj.key
+        this.indexer.del(key)
+		this.storage.removeItem(key)
+		if (callback) this.lambda(callback).call(this)
+        return this
+	},
+
+    nuke: function (callback) {
+		this.all(function(r) {
+			for (var i = 0, l = r.length; i < l; i++) {
+				this.remove(r[i]);
+			}
+			if (callback) this.lambda(callback).call(this)
+		})
+        return this
+	}
+});
+// window.name code courtesy Remy Sharp: http://24ways.org/2009/breaking-out-the-edges-of-the-browser
+Lawnchair.adapter('window-name', (function(index, store) {
+
+    var data = window.top.name ? JSON.parse(window.top.name) : {}
+
+    return {
+
+        valid: function () {
+            return typeof window.top.name != 'undefined'
+        },
+
+        init: function (options, callback) {
+            data[this.name] = {index:[],store:{}}
+            index = data[this.name].index
+            store = data[this.name].store
+            this.fn(this.name, callback).call(this, this)
+        },
+
+        keys: function (callback) {
+            this.fn('keys', callback).call(this, index)
+            return this
+        },
+
+        save: function (obj, cb) {
+            // data[key] = value + ''; // force to string
+            // window.top.name = JSON.stringify(data);
+            var key = obj.key || this.uuid()
+            if (obj.key) delete obj.key
+            this.exists(key, function(exists) {
+                if (!exists) index.push(key)
+                store[key] = obj
+                window.top.name = JSON.stringify(data) // TODO wow, this is the only diff from the memory adapter
+                if (cb) {
+                    obj.key = key
+                    this.lambda(cb).call(this, obj)
+                }
+            })
+            return this
+        },
+
+        batch: function (objs, cb) {
+            var r = []
+            for (var i = 0, l = objs.length; i < l; i++) {
+                this.save(objs[i], function(record) {
+                    r.push(record)
+                })
+            }
+            if (cb) this.lambda(cb).call(this, r)
+            return this
+        },
+
+        get: function (keyOrArray, cb) {
+            var r;
+            if (this.isArray(keyOrArray)) {
+                r = []
+                for (var i = 0, l = keyOrArray.length; i < l; i++) {
+                    r.push(store[keyOrArray[i]])
+                }
+            } else {
+                r = store[keyOrArray]
+                if (r) r.key = keyOrArray
+            }
+            if (cb) this.lambda(cb).call(this, r)
+            return this
+        },
+
+        exists: function (key, cb) {
+            this.lambda(cb).call(this, !!(store[key]))
+            return this
+        },
+
+        all: function (cb) {
+            var r = []
+            for (var i = 0, l = index.length; i < l; i++) {
+                var obj = store[index[i]]
+                obj.key = index[i]
+                r.push(obj)
+            }
+            this.fn(this.name, cb).call(this, r)
+            return this
+        },
+
+		remove: function (keyOrArray, cb) {
+            var del = this.isArray(keyOrArray) ? keyOrArray : [keyOrArray]
+            for (var i = 0, l = del.length; i < l; i++) {
+                delete store[del[i]]
+                index.splice(this.indexOf(index, del[i]), 1)
+            }
+            window.top.name = JSON.stringify(data)
+            if (cb) this.lambda(cb).call(this)
+            return this
+        },
+
+        nuke: function (cb) {
+            storage = {}
+            index = []
+            window.top.name = JSON.stringify(data)
+            if (cb) this.lambda(cb).call(this)
+            return this
+        }
+    }
+/////
+})());
+/**
+ * indexed db adapter
+ * === 
+ * - originally authored by Vivian Li
+ *
+ */ 
+
+Lawnchair.adapter('indexed-db', (function(){
+    
+  function fail(e, i) { console.log('error in indexed-db adapter!', e, i); debugger; } ;
+     
+  function getIDB(){
+    return window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
+  }; 
+  
+  
+    
+  return {
+    
+    valid: function() { return !!getIDB(); },
+    
+    init:function(options, callback) {
+        this.idb = getIDB();
+        this.waiting = [];
+        var request = this.idb.open(this.name);
+        var self = this;
+        var cb = self.fn(self.name, callback);
+        var win = function(){ return cb.call(self, self); }
+        
+        request.onsuccess = function(event) {
+           self.db = request.result; 
+            
+            if(self.db.version != "1.0") {
+              var setVrequest = self.db.setVersion("1.0");
+              // onsuccess is the only place we can create Object Stores
+              setVrequest.onsuccess = function(e) {
+                  self.store = self.db.createObjectStore("teststore", { autoIncrement: true} );
+                  for (var i = 0; i < self.waiting.length; i++) {
+                      self.waiting[i].call(self);
+                  }
+                  self.waiting = [];
+                  win();
+              };
+              setVrequest.onerror = function(e) {
+                  console.log("Failed to create objectstore " + e);
+                  fail(e);
+              }
+            } else {
+                self.store = {};
+                for (var i = 0; i < self.waiting.length; i++) {
+                      self.waiting[i].call(self);
+                }
+                self.waiting = [];
+                win();
+            }
+        }
+        request.onerror = fail;
+    },
+
+    save:function(obj, callback) {
+        if(!this.store) {
+            this.waiting.push(function() {
+                this.save(obj, callback);
+            });
+            return;
+         }
+         
+         var self = this;
+         var win  = function (e) { if (callback) { obj.key = e.target.result; self.lambda(callback).call(self, obj) }};
+         
+         var trans = this.db.transaction(["teststore"], webkitIDBTransaction.READ_WRITE);
+         var store = trans.objectStore("teststore");
+         var request = obj.key ? store.put(obj, obj.key) : store.put(obj);
+         
+         request.onsuccess = win;
+         request.onerror = fail;
+         
+         return this;
+    },
+    
+    // FIXME this should be a batch insert / just getting the test to pass...
+    batch: function (objs, cb) {
+        
+        var results = []
+        ,   done = false
+        ,   self = this
+
+        var updateProgress = function(obj) {
+            results.push(obj)
+            done = results.length === objs.length
+        }
+
+        var checkProgress = setInterval(function() {
+            if (done) {
+                if (cb) self.lambda(cb).call(self, results)
+                clearInterval(checkProgress)
+            }
+        }, 200)
+
+        for (var i = 0, l = objs.length; i < l; i++) 
+            this.save(objs[i], updateProgress)
+        
+        return this
+    },
+    
+
+    get:function(key, callback) {
+        if(!this.store) {
+            this.waiting.push(function() {
+                this.get(key, callback);
+            });
+            return;
+        }
+        
+        
+        var self = this;
+        var win  = function (e) { if (callback) { self.lambda(callback).call(self, e.target.result) }};
+        
+        
+        if (!this.isArray(key)){
+            var req = this.db.transaction("teststore").objectStore("teststore").get(key);
+
+            req.onsuccess = win;
+            req.onerror = function(event) {
+                console.log("Failed to find " + key);
+                fail(event);
+            };
+        
+        // FIXME: again the setInterval solution to async callbacks..    
+        } else {
+
+            // note: these are hosted.
+            var results = []
+            ,   done = false
+            ,   keys = key
+
+            var updateProgress = function(obj) {
+                results.push(obj)
+                done = results.length === keys.length
+            }
+
+            var checkProgress = setInterval(function() {
+                if (done) {
+                    if (callback) self.lambda(callback).call(self, results)
+                    clearInterval(checkProgress)
+                }
+            }, 200)
+
+            for (var i = 0, l = keys.length; i < l; i++) 
+                this.get(keys[i], updateProgress)
+            
+        }
+
+        return this;
+    },
+
+    all:function(callback) {
+        if(!this.store) {
+            this.waiting.push(function() {
+                this.all(callback);
+            });
+            return;
+        }
+        var cb = this.fn(this.name, callback) || undefined;
+        var self = this;
+        var objectStore = this.db.transaction("teststore").objectStore("teststore");
+        var toReturn = [];
+        objectStore.openCursor().onsuccess = function(event) {
+          var cursor = event.target.result;
+          if (cursor) {
+               toReturn.push(cursor.value);
+               cursor.continue();
+          }
+          else {
+              if (cb) cb.call(self, toReturn);
+          }
+        };
+        return this;
+    },
+
+    remove:function(keyOrObj, callback) {
+        if(!this.store) {
+            this.waiting.push(function() {
+                this.remove(keyOrObj, callback);
+            });
+            return;
+        }
+        if (typeof keyOrObj == "object") {
+            keyOrObj = keyOrObj.key;
+        }
+        var self = this;
+        var win  = function () { if (callback) self.lambda(callback).call(self) };
+        
+        var request = this.db.transaction(["teststore"], webkitIDBTransaction.READ_WRITE).objectStore("teststore").delete(keyOrObj);
+        request.onsuccess = win;
+        request.onerror = fail;
+        return this;
+    },
+
+    nuke:function(callback) {
+        if(!this.store) {
+            this.waiting.push(function() {
+                this.nuke(callback);
+            });
+            return;
+        }
+        
+        var self = this
+        ,   win  = callback ? function() { self.lambda(callback).call(self) } : function(){};
+        
+        try {
+            this.db
+                .transaction(["teststore"], webkitIDBTransaction.READ_WRITE)
+                .objectStore("teststore").clear().onsuccess = win;
+            
+        } catch(e) {
+            fail();
+        }
+        return this;
+    }
+    
+  };
+  
+})());
