@@ -200,7 +200,7 @@ function DataController($scope, Feed, store) {
         amplify.publish(appEvents.ITEM_SELECTED, { itemSelected: this.selectedItem, itemIndex: this.selectedItemIndex(), itemCount: this.filteredItemsCount() });
     };
     $scope.filterStarred = function () {
-        this.currentFilter = fnFilterRead
+        this.currentFilter = fnFilterStarred;
         this.selectedItem=null;
         amplify.publish(appEvents.ITEM_SELECTED, { itemSelected: this.selectedItem, itemIndex: this.selectedItemIndex(), itemCount: this.filteredItemsCount() });
     };

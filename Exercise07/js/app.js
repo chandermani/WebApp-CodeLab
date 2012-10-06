@@ -115,7 +115,7 @@ function DataController($scope, Feed) {
         this.currentFilter = fnFilterRead;
     };
     $scope.filterStarred = function () {
-        this.currentFilter = fnFilterRead
+        this.currentFilter = fnFilterStarred;
     };
 
     $scope.readCount = function () {
